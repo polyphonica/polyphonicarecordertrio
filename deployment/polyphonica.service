@@ -6,7 +6,7 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/var/www/polyphonicarecordertrio
-ExecStart=/var/www/polyphonicarecordertrio/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8003 polyphonica.wsgi:application
+ExecStart=/var/www/polyphonicarecordertrio/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8004 polyphonica.wsgi:application
 Restart=on-failure
 RestartSec=5
 
