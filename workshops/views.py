@@ -36,14 +36,19 @@ def detail(request, slug):
     """Workshop detail page."""
     workshop = get_object_or_404(Workshop, slug=slug, status='published')
 
-    # Check if user is already registered
+    # Check if user has an active registration (not cancelled or refunded)
     is_registered = False
+    registration_status = None
     if request.user.is_authenticated:
-        is_registered = workshop.registrations.filter(user=request.user).exists()
+        registration = workshop.registrations.filter(user=request.user).first()
+        if registration:
+            registration_status = registration.status
+            is_registered = registration.status in ['paid', 'attended']
 
     context = {
         'workshop': workshop,
         'is_registered': is_registered,
+        'registration_status': registration_status,
     }
     return render(request, 'workshops/detail.html', context)
 

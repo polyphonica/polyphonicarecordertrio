@@ -150,6 +150,24 @@
                             <div class="w-full py-3 bg-green-100 text-green-700 text-center font-semibold rounded-lg">
                                 You're registered!
                             </div>
+                        {% elif registration_status == 'cancelled' %}
+                            <div class="w-full py-3 bg-gray-100 text-gray-600 text-center font-semibold rounded-lg mb-3">
+                                Registration cancelled
+                            </div>
+                            {% if not workshop.is_full %}
+                            <a href="{% url 'workshops:register' workshop.slug %}" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                                Register Again
+                            </a>
+                            {% endif %}
+                        {% elif registration_status == 'refunded' %}
+                            <div class="w-full py-3 bg-gray-100 text-gray-600 text-center font-semibold rounded-lg mb-3">
+                                Registration cancelled & refunded
+                            </div>
+                            {% if not workshop.is_full %}
+                            <a href="{% url 'workshops:register' workshop.slug %}" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                                Register Again
+                            </a>
+                            {% endif %}
                         {% elif workshop.is_full %}
                             <div class="w-full py-3 bg-primary-300 text-primary-600 text-center font-semibold rounded-lg">
                                 Sold Out
