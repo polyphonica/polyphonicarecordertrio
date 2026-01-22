@@ -65,9 +65,9 @@ def register(request, slug):
         messages.error(request, 'Sorry, this workshop is fully booked.')
         return redirect('workshops:detail', slug=slug)
 
-    # Check if logged-in user is already registered
+    # Check if logged-in user has an active registration
     if request.user.is_authenticated:
-        if workshop.registrations.filter(user=request.user).exists():
+        if workshop.registrations.filter(user=request.user, status__in=['paid', 'attended']).exists():
             messages.info(request, 'You are already registered for this workshop.')
             return redirect('workshops:detail', slug=slug)
 
@@ -85,8 +85,8 @@ def register(request, slug):
             # Get or create user
             user, created, password = form.get_or_create_user()
 
-            # Check if this user (possibly just created) is already registered
-            if workshop.registrations.filter(user=user).exists():
+            # Check if this user (possibly just created) has an active registration
+            if workshop.registrations.filter(user=user, status__in=['paid', 'attended']).exists():
                 messages.info(request, 'You are already registered for this workshop.')
                 if created:
                     # Log them in if we just created their account
