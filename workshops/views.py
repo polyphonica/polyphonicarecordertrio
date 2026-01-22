@@ -369,7 +369,8 @@ def send_account_created_email(user, password, workshop):
     """Send email to new user with their account details."""
     subject = f'Your Polyphonica Account - {workshop.title} Registration'
 
-    message = f"""
+    # Plain text fallback
+    plain_message = f"""
 Hello {user.first_name},
 
 An account has been created for you on the Polyphonica Recorder Trio website
@@ -383,23 +384,24 @@ You can log in at: https://polyphonicarecordertrio.com/accounts/login/
 
 We recommend changing your password after logging in.
 
-This account allows you to:
-- Access and download workshop materials
-- View your booking history
-- Manage your registrations
-
-If you didn't request this registration, please contact us.
-
 Best regards,
 Polyphonica Recorder Trio
 """
 
+    # HTML message
+    html_message = render_to_string('emails/account_created.html', {
+        'user': user,
+        'password': password,
+        'workshop': workshop,
+    })
+
     try:
         send_mail(
             subject,
-            message,
+            plain_message,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
+            html_message=html_message,
             fail_silently=True,
         )
     except Exception:
@@ -501,43 +503,44 @@ def send_cancellation_email(registration, refund_percent, refund_amount):
     user = registration.user
     subject = f'Registration Cancelled - {workshop.title}'
 
+    # Plain text fallback
     refund_text = ""
     if refund_percent == 100:
         refund_text = f"A full refund of £{refund_amount:.2f} will be processed to your original payment method within 5-10 business days."
     else:
         refund_text = "As this cancellation was made less than 7 days before the workshop, no refund is available per our cancellation policy."
 
-    message = f"""
+    plain_message = f"""
 Hello {user.first_name},
 
 Your registration for the following workshop has been cancelled:
 
-WORKSHOP DETAILS
-----------------
 {workshop.title}
 Date: {workshop.date.strftime('%A, %d %B %Y')}
 Time: {workshop.start_time.strftime('%I:%M %p')} - {workshop.end_time.strftime('%I:%M %p')}
 
-REFUND INFORMATION
-------------------
 {refund_text}
-
-Our cancellation policy:
-- 7 or more days before: Full refund
-- Less than 7 days before: No refund
-
-If you have any questions, please don't hesitate to contact us.
 
 Best regards,
 Polyphonica Recorder Trio
 """
 
+    # HTML message
+    html_message = render_to_string('emails/cancellation_confirmation.html', {
+        'user': user,
+        'workshop': workshop,
+        'registration': registration,
+        'refund_percent': refund_percent,
+        'refund_amount': refund_amount,
+    })
+
     try:
         send_mail(
             subject,
-            message,
+            plain_message,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
+            html_message=html_message,
             fail_silently=True,
         )
     except Exception:
@@ -548,58 +551,45 @@ def send_registration_confirmation_email(user, workshop, registration):
     """Send workshop registration confirmation email."""
     subject = f'Registration Confirmed - {workshop.title}'
 
-    # Build workshop details
+    # Plain text fallback
     location_info = ""
     if workshop.is_in_person and workshop.venue_name:
-        location_info = f"""
-Venue: {workshop.venue_name}
-{workshop.venue_address}
-{workshop.venue_postcode}
-"""
+        location_info = f"Venue: {workshop.venue_name}, {workshop.venue_address}, {workshop.venue_postcode}"
     if workshop.is_online:
         location_info += "\nOnline access details will be sent closer to the workshop date."
 
-    message = f"""
+    plain_message = f"""
 Hello {user.first_name},
 
 Thank you for registering for our workshop!
 
-WORKSHOP DETAILS
-----------------
 {workshop.title}
-
 Date: {workshop.date.strftime('%A, %d %B %Y')}
 Time: {workshop.start_time.strftime('%I:%M %p')} - {workshop.end_time.strftime('%I:%M %p')}
-Format: {workshop.get_delivery_method_display()}
 {location_info}
 
-PAYMENT CONFIRMED
------------------
 Amount paid: £{registration.amount_paid}
-Registration ID: #{registration.id}
-
-WHAT TO BRING
--------------
-{workshop.materials_needed or 'Details will be sent closer to the workshop date.'}
-
-If you have any questions, please don't hesitate to contact us.
 
 We look forward to seeing you!
 
 Best regards,
 Polyphonica Recorder Trio
-
----
-You can view your registration and access any workshop materials at:
-https://polyphonicarecordertrio.com/accounts/dashboard/
 """
+
+    # HTML message
+    html_message = render_to_string('emails/registration_confirmation.html', {
+        'user': user,
+        'workshop': workshop,
+        'registration': registration,
+    })
 
     try:
         send_mail(
             subject,
-            message,
+            plain_message,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
+            html_message=html_message,
             fail_silently=True,
         )
         # Mark confirmation as sent

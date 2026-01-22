@@ -1,0 +1,96 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Registration Cancelled - {{ workshop.title }}{% endblock %}
+
+{% block content %}
+<h2 style="margin: 0 0 20px 0; color: #403831; font-size: 24px; font-weight: 600;">
+    Registration Cancelled
+</h2>
+
+<p style="margin: 0 0 25px 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Hello {{ user.first_name }},
+</p>
+
+<p style="margin: 0 0 25px 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Your registration for the following workshop has been cancelled:
+</p>
+
+<!-- Workshop Details Box -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f3f0; border-radius: 8px; margin-bottom: 25px;">
+    <tr>
+        <td style="padding: 25px;">
+            <h3 style="margin: 0 0 15px 0; color: #403831; font-size: 18px; font-weight: 600;">
+                {{ workshop.title }}
+            </h3>
+
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="padding: 5px 0; color: #7d6e5c; font-size: 14px; width: 80px;">Date:</td>
+                    <td style="padding: 5px 0; color: #403831; font-size: 14px; font-weight: 500;">{{ workshop.date|date:"l, j F Y" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #7d6e5c; font-size: 14px;">Time:</td>
+                    <td style="padding: 5px 0; color: #403831; font-size: 14px; font-weight: 500;">{{ workshop.start_time|time:"g:i A" }} - {{ workshop.end_time|time:"g:i A" }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<!-- Refund Information -->
+{% if refund_percent == 100 %}
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 0 8px 8px 0; margin-bottom: 25px;">
+    <tr>
+        <td style="padding: 20px;">
+            <p style="margin: 0 0 5px 0; color: #166534; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                Full Refund Approved
+            </p>
+            <p style="margin: 0; color: #166534; font-size: 20px; font-weight: 600;">
+                £{{ refund_amount|floatformat:2 }}
+            </p>
+            <p style="margin: 10px 0 0 0; color: #15803d; font-size: 13px; line-height: 1.5;">
+                Your refund will be processed to your original payment method within 5-10 business days.
+            </p>
+        </td>
+    </tr>
+</table>
+{% else %}
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #fef2f2; border-left: 4px solid #ef4444; border-radius: 0 8px 8px 0; margin-bottom: 25px;">
+    <tr>
+        <td style="padding: 20px;">
+            <p style="margin: 0 0 5px 0; color: #991b1b; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                No Refund Available
+            </p>
+            <p style="margin: 10px 0 0 0; color: #b91c1c; font-size: 13px; line-height: 1.5;">
+                As this cancellation was made less than 7 days before the workshop, no refund is available per our cancellation policy.
+            </p>
+        </td>
+    </tr>
+</table>
+{% endif %}
+
+<!-- Cancellation Policy -->
+<h3 style="margin: 0 0 10px 0; color: #403831; font-size: 16px; font-weight: 600;">
+    Our Cancellation Policy
+</h3>
+
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom: 25px;">
+    <tr>
+        <td style="padding: 8px 15px 8px 0; color: #7d6e5c; font-size: 14px;">7+ days before:</td>
+        <td style="padding: 8px 0; color: #403831; font-size: 14px;">Full refund</td>
+    </tr>
+    <tr>
+        <td style="padding: 8px 15px 8px 0; color: #7d6e5c; font-size: 14px;">Less than 7 days:</td>
+        <td style="padding: 8px 0; color: #403831; font-size: 14px;">No refund</td>
+    </tr>
+</table>
+
+<p style="margin: 25px 0 0 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    If you have any questions, please don't hesitate to <a href="mailto:polyphonicatrio@gmail.com" style="color: #d68249; text-decoration: none;">contact us</a>.
+</p>
+
+<p style="margin: 20px 0 0 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Best regards,<br>
+    <strong style="color: #403831;">Polyphonica Recorder Trio</strong>
+</p>
+{% endblock %}

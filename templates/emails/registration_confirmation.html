@@ -1,0 +1,105 @@
+{% extends 'emails/base_email.html' %}
+
+{% block title %}Registration Confirmed - {{ workshop.title }}{% endblock %}
+
+{% block content %}
+<h2 style="margin: 0 0 20px 0; color: #403831; font-size: 24px; font-weight: 600;">
+    Registration Confirmed
+</h2>
+
+<p style="margin: 0 0 25px 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Hello {{ user.first_name }},
+</p>
+
+<p style="margin: 0 0 25px 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Thank you for registering for our workshop! We're excited to have you join us.
+</p>
+
+<!-- Workshop Details Box -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f3f0; border-radius: 8px; margin-bottom: 25px;">
+    <tr>
+        <td style="padding: 25px;">
+            <h3 style="margin: 0 0 15px 0; color: #403831; font-size: 18px; font-weight: 600;">
+                {{ workshop.title }}
+            </h3>
+
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td style="padding: 5px 0; color: #7d6e5c; font-size: 14px; width: 100px;">Date:</td>
+                    <td style="padding: 5px 0; color: #403831; font-size: 14px; font-weight: 500;">{{ workshop.date|date:"l, j F Y" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #7d6e5c; font-size: 14px;">Time:</td>
+                    <td style="padding: 5px 0; color: #403831; font-size: 14px; font-weight: 500;">{{ workshop.start_time|time:"g:i A" }} - {{ workshop.end_time|time:"g:i A" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 5px 0; color: #7d6e5c; font-size: 14px;">Format:</td>
+                    <td style="padding: 5px 0; color: #403831; font-size: 14px; font-weight: 500;">{{ workshop.get_delivery_method_display }}</td>
+                </tr>
+                {% if workshop.is_in_person and workshop.venue_name %}
+                <tr>
+                    <td style="padding: 5px 0; color: #7d6e5c; font-size: 14px; vertical-align: top;">Venue:</td>
+                    <td style="padding: 5px 0; color: #403831; font-size: 14px; font-weight: 500;">
+                        {{ workshop.venue_name }}<br>
+                        <span style="font-weight: 400; color: #6b5d4d;">{{ workshop.venue_address }}<br>{{ workshop.venue_postcode }}</span>
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </td>
+    </tr>
+</table>
+
+<!-- Payment Confirmation -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #fdf8f3; border-left: 4px solid #d68249; border-radius: 0 8px 8px 0; margin-bottom: 25px;">
+    <tr>
+        <td style="padding: 20px;">
+            <p style="margin: 0 0 5px 0; color: #a65333; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
+                Payment Confirmed
+            </p>
+            <p style="margin: 0; color: #403831; font-size: 20px; font-weight: 600;">
+                £{{ registration.amount_paid }}
+            </p>
+            <p style="margin: 5px 0 0 0; color: #7d6e5c; font-size: 13px;">
+                Registration #{{ registration.id }}
+            </p>
+        </td>
+    </tr>
+</table>
+
+{% if workshop.materials_needed %}
+<!-- What to Bring -->
+<h3 style="margin: 0 0 10px 0; color: #403831; font-size: 16px; font-weight: 600;">
+    What to Bring
+</h3>
+<p style="margin: 0 0 25px 0; color: #584c40; font-size: 14px; line-height: 1.6;">
+    {{ workshop.materials_needed }}
+</p>
+{% endif %}
+
+{% if workshop.is_online %}
+<p style="margin: 0 0 25px 0; color: #584c40; font-size: 14px; line-height: 1.6;">
+    <em>Online access details will be sent closer to the workshop date.</em>
+</p>
+{% endif %}
+
+<!-- CTA Button -->
+<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+    <tr>
+        <td style="background-color: #d68249; border-radius: 8px;">
+            <a href="https://polyphonicarecordertrio.com/accounts/profile/" style="display: inline-block; padding: 14px 30px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 600;">
+                View Your Registration
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 25px 0 0 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    We look forward to seeing you!
+</p>
+
+<p style="margin: 15px 0 0 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Best regards,<br>
+    <strong style="color: #403831;">Polyphonica Recorder Trio</strong>
+</p>
+{% endblock %}
