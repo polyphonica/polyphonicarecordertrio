@@ -3,11 +3,11 @@ server {
     server_name polyphonicarecordertrio.com www.polyphonicarecordertrio.com;
 
     location /static/ {
-        alias /var/www/polyphonica/staticfiles/;
+        alias /var/www/polyphonicarecordertrio/staticfiles/;
     }
 
     location /uploads/ {
-        alias /var/www/polyphonica/media/;
+        alias /var/www/polyphonicarecordertrio/media/;
     }
 
     location / {
