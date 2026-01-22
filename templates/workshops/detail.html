@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ workshop.title }} - Polyphonica Recorder Trio{% endblock %}
+
+{% block content %}
+<section class="py-16 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav class="mb-8 text-sm">
+            <a href="{% url 'workshops:index' %}" class="text-accent-600 hover:text-accent-700">Workshops</a>
+            <span class="mx-2 text-primary-400">/</span>
+            <span class="text-primary-600">{{ workshop.title }}</span>
+        </nav>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="md:col-span-2">
+                {% if workshop.image %}
+                    <img src="{{ workshop.image.url }}" alt="{{ workshop.title }}" class="w-full h-64 md:h-80 object-cover rounded-xl mb-8">
+                {% endif %}
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="px-3 py-1 bg-primary-200 text-primary-700 text-sm rounded-full">
+                        {{ workshop.get_delivery_method_display }}
+                    </span>
+                    {% if workshop.is_full %}
+                        <span class="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full">
+                            Sold Out
+                        </span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-3xl md:text-4xl font-serif font-bold text-primary-900 mb-4">{{ workshop.title }}</h1>
+
+                <div class="prose prose-lg max-w-none text-primary-700 mb-8">
+                    {{ workshop.description|linebreaks }}
+                </div>
+
+                {% if workshop.prerequisites %}
+                <div class="mb-8">
+                    <h2 class="text-xl font-serif font-semibold text-primary-900 mb-4">Prerequisites</h2>
+                    <div class="prose max-w-none text-primary-700 bg-primary-50 p-6 rounded-lg">
+                        {{ workshop.prerequisites|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if workshop.materials_needed %}
+                <div class="mb-8">
+                    <h2 class="text-xl font-serif font-semibold text-primary-900 mb-4">What to Bring</h2>
+                    <div class="prose max-w-none text-primary-700 bg-primary-50 p-6 rounded-lg">
+                        {{ workshop.materials_needed|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Materials (for registered users) -->
+                {% if is_registered and workshop.materials.exists %}
+                <div class="mb-8">
+                    <h2 class="text-xl font-serif font-semibold text-primary-900 mb-4">Workshop Materials</h2>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <p class="text-green-800 mb-4">As a registered participant, you have access to the following materials:</p>
+                        <ul class="space-y-2">
+                            {% for material in workshop.materials.all %}
+                            <li>
+                                <a href="{{ material.file.url }}" class="text-accent-600 hover:text-accent-700 font-medium">
+                                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    {{ material.title }}
+                                </a>
+                                {% if material.description %}
+                                    <span class="text-sm text-primary-500 ml-6 block">{{ material.description }}</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="md:col-span-1">
+                <div class="sticky top-24 bg-primary-50 rounded-xl p-6">
+                    <!-- Date & Time -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-primary-900 mb-2">Date & Time</h3>
+                        <p class="text-primary-700">
+                            <span class="block text-lg font-medium">{{ workshop.date|date:"l, j F Y" }}</span>
+                            <span class="text-primary-600">{{ workshop.start_time|time:"g:i A" }} - {{ workshop.end_time|time:"g:i A" }}</span>
+                            <span class="block text-sm text-primary-500">{{ workshop.duration_hours }} hours</span>
+                        </p>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-primary-900 mb-2">Location</h3>
+                        {% if workshop.is_online %}
+                            <p class="text-primary-700">
+                                <span class="block font-medium">Online Workshop</span>
+                                {% if is_registered and workshop.meeting_link %}
+                                    <a href="{{ workshop.meeting_link }}" target="_blank" rel="noopener" class="text-accent-600 hover:text-accent-700 text-sm">
+                                        Join meeting →
+                                    </a>
+                                {% else %}
+                                    <span class="text-sm text-primary-500">Meeting link provided after registration</span>
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                        {% if workshop.is_in_person and workshop.venue_name %}
+                            <p class="text-primary-700">
+                                <span class="block font-medium">{{ workshop.venue_name }}</span>
+                                {% if workshop.venue_address %}
+                                    <span class="block text-sm text-primary-600">{{ workshop.venue_address }}</span>
+                                {% endif %}
+                                {% if workshop.venue_postcode %}
+                                    <span class="block text-sm text-primary-600">{{ workshop.venue_postcode }}</span>
+                                {% endif %}
+                            </p>
+                            {% if workshop.venue_map_link %}
+                                <a href="{{ workshop.venue_map_link }}" target="_blank" rel="noopener" class="inline-block mt-2 text-sm text-accent-600 hover:text-accent-700">
+                                    View on map →
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Capacity -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-primary-900 mb-2">Availability</h3>
+                        <p class="text-primary-700">
+                            {% if workshop.is_full %}
+                                <span class="text-red-600 font-medium">Sold Out</span>
+                            {% else %}
+                                <span class="text-green-600 font-medium">{{ workshop.places_remaining }} places remaining</span>
+                            {% endif %}
+                            <span class="block text-sm text-primary-500">{{ workshop.max_participants }} maximum participants</span>
+                        </p>
+                    </div>
+
+                    <!-- Price & Registration -->
+                    <div class="border-t border-primary-200 pt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-primary-700">Price</span>
+                            <span class="text-2xl font-bold text-primary-900">£{{ workshop.price }}</span>
+                        </div>
+
+                        {% if is_registered %}
+                            <div class="w-full py-3 bg-green-100 text-green-700 text-center font-semibold rounded-lg">
+                                You're registered!
+                            </div>
+                        {% elif workshop.is_full %}
+                            <div class="w-full py-3 bg-primary-300 text-primary-600 text-center font-semibold rounded-lg">
+                                Sold Out
+                            </div>
+                        {% else %}
+                            <a href="{% url 'workshops:register' workshop.slug %}" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                                Register Now
+                            </a>
+                            {% if not user.is_authenticated %}
+                            <p class="text-center text-sm text-primary-500 mt-2">
+                                An account will be created for you
+                            </p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

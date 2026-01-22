@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Concerts - Polyphonica Recorder Trio{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-16 px-4 bg-primary-100">
+    <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl font-serif font-bold text-primary-900 mb-4">Concerts</h1>
+        <p class="text-lg text-primary-600">Experience the rich sound of recorder music performed live.</p>
+    </div>
+</section>
+
+<!-- Upcoming Concerts -->
+<section class="py-16 px-4 bg-white">
+    <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-serif font-semibold text-primary-900 mb-8">Upcoming Concerts</h2>
+
+        {% if upcoming_concerts %}
+            <div class="space-y-6">
+                {% for concert in upcoming_concerts %}
+                <a href="{{ concert.get_absolute_url }}" class="block bg-primary-50 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="md:flex">
+                        {% if concert.image %}
+                            <div class="md:w-48 md:flex-shrink-0">
+                                <img src="{{ concert.image.url }}" alt="{{ concert.title }}" class="w-full h-48 md:h-full object-cover">
+                            </div>
+                        {% endif %}
+                        <div class="p-6 flex-grow">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="px-3 py-1 bg-accent-100 text-accent-700 text-sm font-medium rounded-full">
+                                    {{ concert.date|date:"l, j F Y" }}
+                                </span>
+                                <span class="text-primary-500 text-sm">{{ concert.time|time:"g:i A" }}</span>
+                            </div>
+                            <h3 class="text-xl font-serif font-semibold text-primary-900 mb-2">{{ concert.title }}</h3>
+                            <p class="text-primary-600 mb-3">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                {{ concert.venue_name }}
+                            </p>
+
+                            {% if concert.ticket_source == 'internal' %}
+                                <div class="text-sm text-primary-700">
+                                    <span class="font-medium">£{{ concert.full_price }}</span>
+                                    {% if concert.discount_price %}
+                                        <span class="text-primary-500">/ £{{ concert.discount_price }} concessions</span>
+                                    {% endif %}
+                                </div>
+                            {% elif concert.ticket_source == 'external' %}
+                                <span class="text-accent-600 text-sm font-medium">Get Tickets →</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12 bg-primary-50 rounded-xl">
+                <svg class="w-16 h-16 mx-auto text-primary-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <p class="text-primary-600">No upcoming concerts at the moment.</p>
+                <p class="text-primary-500 text-sm mt-2">Check back soon or follow us on social media for updates.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Past Concerts -->
+{% if past_concerts %}
+<section class="py-16 px-4 bg-primary-50">
+    <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-serif font-semibold text-primary-900 mb-8">Recent Performances</h2>
+
+        <div class="space-y-4">
+            {% for concert in past_concerts %}
+            <div class="bg-white rounded-lg p-4 flex items-center justify-between">
+                <div>
+                    <span class="text-sm text-primary-500">{{ concert.date|date:"j F Y" }}</span>
+                    <h3 class="font-medium text-primary-900">{{ concert.title }}</h3>
+                    <p class="text-sm text-primary-600">{{ concert.venue_name }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

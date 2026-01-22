@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}About - Polyphonica Recorder Trio{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-16 px-4 bg-primary-100">
+    <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl font-serif font-bold text-primary-900 mb-6">About Polyphonica</h1>
+        {% if trio_info %}
+            <p class="text-xl text-primary-700 leading-relaxed">{{ trio_info.tagline }}</p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Trio Description -->
+<section class="py-16 px-4 bg-white">
+    <div class="max-w-4xl mx-auto">
+        {% if trio_info %}
+            <div class="prose prose-lg max-w-none text-primary-700">
+                {{ trio_info.description|linebreaks }}
+            </div>
+
+            {% if trio_info.history %}
+            <div class="mt-12">
+                <h2 class="text-2xl font-serif font-semibold text-primary-900 mb-4">Our Story</h2>
+                <div class="prose prose-lg max-w-none text-primary-700">
+                    {{ trio_info.history|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <p class="text-lg text-primary-700 leading-relaxed">
+                Polyphonica Recorder Trio brings together three accomplished musicians united by their passion for the recorder and its vast repertoire. From Renaissance masterpieces to contemporary commissions, we explore the full expressive range of this versatile instrument family.
+            </p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Players Section -->
+{% if players %}
+<section class="py-16 px-4 bg-primary-50">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-serif font-semibold text-primary-900 mb-12 text-center">The Musicians</h2>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            {% for player in players %}
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                {% if player.photo %}
+                    <img src="{{ player.photo.url }}" alt="{{ player.name }}" class="w-full h-64 object-cover">
+                {% else %}
+                    <div class="w-full h-64 bg-primary-200 flex items-center justify-center">
+                        <svg class="w-24 h-24 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                {% endif %}
+
+                <div class="p-6">
+                    <h3 class="text-xl font-serif font-semibold text-primary-900 mb-1">{{ player.name }}</h3>
+                    {% if player.role %}
+                        <p class="text-accent-600 text-sm font-medium mb-4">{{ player.role }}</p>
+                    {% endif %}
+                    <div class="text-primary-600 text-sm leading-relaxed">
+                        {{ player.bio|linebreaks }}
+                    </div>
+                    {% if player.website %}
+                        <a href="{{ player.website }}" target="_blank" rel="noopener" class="inline-block mt-4 text-accent-600 hover:text-accent-700 text-sm font-medium">
+                            Visit website →
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% else %}
+<!-- Placeholder when no players are in the database -->
+<section class="py-16 px-4 bg-primary-50">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-serif font-semibold text-primary-900 mb-12 text-center">The Musicians</h2>
+        <p class="text-center text-primary-600">Player biographies coming soon.</p>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="py-16 px-4 bg-primary-800">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl font-serif font-semibold text-primary-50 mb-4">Experience Polyphonica Live</h2>
+        <p class="text-lg text-primary-200 mb-8">
+            Join us at an upcoming concert or workshop.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'concerts:index' %}" class="px-8 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors duration-200">
+                View Concerts
+            </a>
+            <a href="{% url 'workshops:index' %}" class="px-8 py-3 bg-transparent border-2 border-primary-200 hover:bg-primary-700 text-primary-100 font-semibold rounded-lg transition-colors duration-200">
+                Browse Workshops
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

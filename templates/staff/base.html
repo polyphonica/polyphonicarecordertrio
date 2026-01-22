@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-primary-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Staff Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-2xl font-serif font-bold text-primary-900">{% block page_title %}Staff Area{% endblock %}</h1>
+                    <p class="text-primary-600 text-sm mt-1">{% block page_subtitle %}{% endblock %}</p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    {% block page_actions %}{% endblock %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Navigation -->
+        <nav class="mb-8 bg-white rounded-lg shadow-sm p-2 flex flex-wrap gap-2">
+            <a href="{% url 'core:staff_dashboard' %}"
+               class="px-4 py-2 rounded-md text-sm font-medium {% if request.resolver_match.url_name == 'staff_dashboard' %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
+                Dashboard
+            </a>
+            <a href="{% url 'workshops:staff_workshop_list' %}"
+               class="px-4 py-2 rounded-md text-sm font-medium {% if 'workshop' in request.resolver_match.url_name %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
+                Workshops
+            </a>
+            <a href="{% url 'concerts:staff_concert_list' %}"
+               class="px-4 py-2 rounded-md text-sm font-medium {% if 'concert' in request.resolver_match.url_name %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
+                Concerts
+            </a>
+            <span class="flex-grow"></span>
+            <a href="{% url 'admin:index' %}" target="_blank"
+               class="px-4 py-2 rounded-md text-sm font-medium text-primary-500 hover:bg-primary-100">
+                Django Admin
+            </a>
+        </nav>
+
+        <!-- Main Content -->
+        {% block staff_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

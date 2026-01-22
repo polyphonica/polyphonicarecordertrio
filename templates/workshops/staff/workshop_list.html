@@ -1,0 +1,107 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Manage Workshops - Polyphonica{% endblock %}
+{% block page_title %}Workshops{% endblock %}
+{% block page_subtitle %}Manage workshop listings{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'workshops:staff_workshop_create' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+    + New Workshop
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<!-- Upcoming Workshops -->
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Upcoming Workshops</h2>
+    </div>
+    {% if upcoming_workshops %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Workshop</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Format</th>
+                    <th class="px-6 py-3">Price</th>
+                    <th class="px-6 py-3">Registrations</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for workshop in upcoming_workshops %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4">
+                        <a href="{% url 'workshops:staff_workshop_edit' workshop.pk %}" class="font-medium text-primary-900 hover:text-accent-600">
+                            {{ workshop.title }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ workshop.date|date:"D, j M Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ workshop.get_delivery_method_display }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-600">&pound;{{ workshop.price }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="{% if workshop.is_full %}text-red-600{% else %}text-primary-600{% endif %}">
+                            {{ workshop.current_registrations }}/{{ workshop.max_participants }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                            {% if workshop.status == 'published' %}bg-green-100 text-green-700
+                            {% elif workshop.status == 'draft' %}bg-yellow-100 text-yellow-700
+                            {% else %}bg-red-100 text-red-700{% endif %}">
+                            {{ workshop.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm space-x-3">
+                        <a href="{% url 'workshops:staff_workshop_attendees' workshop.pk %}" class="text-accent-600 hover:text-accent-700">Attendees</a>
+                        <a href="{% url 'workshops:staff_workshop_edit' workshop.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                        <a href="{{ workshop.get_absolute_url }}" target="_blank" class="text-primary-500 hover:text-primary-700">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-primary-500">
+        No upcoming workshops. <a href="{% url 'workshops:staff_workshop_create' %}" class="text-accent-600 hover:text-accent-700">Create one</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Past Workshops -->
+{% if past_workshops %}
+<div class="bg-white rounded-lg shadow-sm">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Past Workshops</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Workshop</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Attendees</th>
+                    <th class="px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for workshop in past_workshops %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4 text-primary-700">{{ workshop.title }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-500">{{ workshop.date|date:"j M Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-500">{{ workshop.current_registrations }}</td>
+                    <td class="px-6 py-4 text-sm space-x-3">
+                        <a href="{% url 'workshops:staff_workshop_attendees' workshop.pk %}" class="text-accent-600 hover:text-accent-700">Attendees</a>
+                        <a href="{% url 'workshops:staff_workshop_edit' workshop.pk %}" class="text-primary-500 hover:text-primary-700">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Manage Concerts - Polyphonica{% endblock %}
+{% block page_title %}Concerts{% endblock %}
+{% block page_subtitle %}Manage concert listings{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'concerts:staff_concert_create' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+    + New Concert
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<!-- Upcoming Concerts -->
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Upcoming Concerts</h2>
+    </div>
+    {% if upcoming_concerts %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Concert</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Venue</th>
+                    <th class="px-6 py-3">Tickets</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for concert in upcoming_concerts %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4">
+                        <a href="{% url 'concerts:staff_concert_edit' concert.pk %}" class="font-medium text-primary-900 hover:text-accent-600">
+                            {{ concert.title }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ concert.date|date:"D, j M Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ concert.venue_name }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        {% if concert.ticket_source == 'internal' %}
+                            <span class="{% if concert.is_sold_out %}text-red-600{% else %}text-primary-600{% endif %}">
+                                {{ concert.tickets_sold }}{% if concert.capacity %}/{{ concert.capacity }}{% endif %}
+                            </span>
+                        {% elif concert.ticket_source == 'external' %}
+                            <span class="text-primary-500">External</span>
+                        {% else %}
+                            <span class="text-primary-500">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                            {% if concert.status == 'published' %}bg-green-100 text-green-700
+                            {% elif concert.status == 'draft' %}bg-yellow-100 text-yellow-700
+                            {% else %}bg-red-100 text-red-700{% endif %}">
+                            {{ concert.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm space-x-3">
+                        {% if concert.ticket_source == 'internal' %}
+                        <a href="{% url 'concerts:staff_concert_orders' concert.pk %}" class="text-accent-600 hover:text-accent-700">Orders</a>
+                        {% endif %}
+                        <a href="{% url 'concerts:staff_concert_edit' concert.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                        <a href="{{ concert.get_absolute_url }}" target="_blank" class="text-primary-500 hover:text-primary-700">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-primary-500">
+        No upcoming concerts. <a href="{% url 'concerts:staff_concert_create' %}" class="text-accent-600 hover:text-accent-700">Create one</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Past Concerts -->
+{% if past_concerts %}
+<div class="bg-white rounded-lg shadow-sm">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Past Concerts</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Concert</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Venue</th>
+                    <th class="px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for concert in past_concerts %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4 text-primary-700">{{ concert.title }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-500">{{ concert.date|date:"j M Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-500">{{ concert.venue_name }}</td>
+                    <td class="px-6 py-4 text-sm space-x-3">
+                        {% if concert.ticket_source == 'internal' %}
+                        <a href="{% url 'concerts:staff_concert_orders' concert.pk %}" class="text-accent-600 hover:text-accent-700">Orders</a>
+                        {% endif %}
+                        <a href="{% url 'concerts:staff_concert_edit' concert.pk %}" class="text-primary-500 hover:text-primary-700">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

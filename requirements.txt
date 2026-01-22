@@ -1,0 +1,7 @@
+django>=5.0
+pillow
+stripe
+python-dotenv
+dj-database-url
+psycopg2-binary
+gunicorn

@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Polyphonica Recorder Trio - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative h-[70vh] min-h-[500px] flex items-center justify-center bg-primary-900">
+    <!-- Background image placeholder - will be replaced with actual image -->
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700"></div>
+
+    <!-- Hero content -->
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <h1 class="text-4xl md:text-6xl font-serif font-bold text-primary-50 mb-6">
+            Polyphonica Recorder Trio
+        </h1>
+        <p class="text-xl md:text-2xl text-primary-200 mb-8 leading-relaxed">
+            Bringing the rich heritage of recorder music to life through passionate performance and inspired interpretation.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'concerts:index' %}" class="px-8 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors duration-200">
+                Upcoming Concerts
+            </a>
+            <a href="{% url 'about:index' %}" class="px-8 py-3 bg-transparent border-2 border-primary-200 hover:bg-primary-800 text-primary-100 font-semibold rounded-lg transition-colors duration-200">
+                About Us
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Introduction Section -->
+<section class="py-16 px-4 bg-primary-50">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl font-serif font-semibold text-primary-900 mb-6">Welcome</h2>
+        <p class="text-lg text-primary-700 leading-relaxed mb-8">
+            Polyphonica Recorder Trio brings together three accomplished musicians united by their passion for the recorder and its vast repertoire. From Renaissance masterpieces to contemporary commissions, we explore the full expressive range of this versatile instrument family.
+        </p>
+        <a href="{% url 'about:index' %}" class="text-accent-600 hover:text-accent-700 font-medium inline-flex items-center">
+            Learn more about us
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+    </div>
+</section>
+
+<!-- Upcoming Events Section -->
+{% if upcoming_concerts or upcoming_workshops %}
+<section class="py-16 px-4 bg-white">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-serif font-semibold text-primary-900 mb-10 text-center">Upcoming Events</h2>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Concerts -->
+            {% if upcoming_concerts %}
+            <div>
+                <h3 class="text-xl font-serif font-semibold text-primary-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                    </svg>
+                    Concerts
+                </h3>
+                <div class="space-y-4">
+                    {% for concert in upcoming_concerts %}
+                    <a href="{{ concert.get_absolute_url }}" class="block p-4 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                        <div class="text-sm text-accent-600 font-medium">{{ concert.date|date:"l, j F Y" }}</div>
+                        <div class="text-lg font-semibold text-primary-900">{{ concert.title }}</div>
+                        <div class="text-sm text-primary-600">{{ concert.venue_name }}</div>
+                    </a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'concerts:index' %}" class="inline-block mt-4 text-accent-600 hover:text-accent-700 font-medium">
+                    View all concerts →
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Workshops -->
+            {% if upcoming_workshops %}
+            <div>
+                <h3 class="text-xl font-serif font-semibold text-primary-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    Workshops
+                </h3>
+                <div class="space-y-4">
+                    {% for workshop in upcoming_workshops %}
+                    <a href="{{ workshop.get_absolute_url }}" class="block p-4 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                        <div class="text-sm text-accent-600 font-medium">{{ workshop.date|date:"l, j F Y" }}</div>
+                        <div class="text-lg font-semibold text-primary-900">{{ workshop.title }}</div>
+                        <div class="text-sm text-primary-600">
+                            {{ workshop.get_delivery_method_display }} • £{{ workshop.price }}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'workshops:index' %}" class="inline-block mt-4 text-accent-600 hover:text-accent-700 font-medium">
+                    View all workshops →
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="py-16 px-4 bg-primary-800">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl font-serif font-semibold text-primary-50 mb-4">Get in Touch</h2>
+        <p class="text-lg text-primary-200 mb-8">
+            Interested in booking Polyphonica for a concert or workshop? We'd love to hear from you.
+        </p>
+        <a href="{% url 'core:contact' %}" class="inline-block px-8 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors duration-200">
+            Contact Us
+        </a>
+    </div>
+</section>
+{% endblock %}

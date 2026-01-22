@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ concert.title }} - Polyphonica Recorder Trio{% endblock %}
+
+{% block content %}
+<section class="py-16 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav class="mb-8 text-sm">
+            <a href="{% url 'concerts:index' %}" class="text-accent-600 hover:text-accent-700">Concerts</a>
+            <span class="mx-2 text-primary-400">/</span>
+            <span class="text-primary-600">{{ concert.title }}</span>
+        </nav>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="md:col-span-2">
+                {% if concert.image %}
+                    <img src="{{ concert.image.url }}" alt="{{ concert.title }}" class="w-full h-64 md:h-80 object-cover rounded-xl mb-8">
+                {% endif %}
+
+                <h1 class="text-3xl md:text-4xl font-serif font-bold text-primary-900 mb-4">{{ concert.title }}</h1>
+
+                <div class="prose prose-lg max-w-none text-primary-700 mb-8">
+                    {{ concert.description|linebreaks }}
+                </div>
+
+                {% if concert.programme %}
+                <div class="mb-8">
+                    <h2 class="text-xl font-serif font-semibold text-primary-900 mb-4">Programme</h2>
+                    <div class="prose max-w-none text-primary-700 bg-primary-50 p-6 rounded-lg">
+                        {{ concert.programme|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="md:col-span-1">
+                <div class="sticky top-24 bg-primary-50 rounded-xl p-6">
+                    <!-- Date & Time -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-primary-900 mb-2">Date & Time</h3>
+                        <p class="text-primary-700">
+                            <span class="block text-lg font-medium">{{ concert.date|date:"l, j F Y" }}</span>
+                            <span class="text-primary-600">{{ concert.time|time:"g:i A" }}</span>
+                            {% if concert.doors_open %}
+                                <span class="block text-sm text-primary-500">Doors open {{ concert.doors_open|time:"g:i A" }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Venue -->
+                    <div class="mb-6">
+                        <h3 class="font-semibold text-primary-900 mb-2">Venue</h3>
+                        <p class="text-primary-700">
+                            <span class="block font-medium">{{ concert.venue_name }}</span>
+                            {% if concert.venue_address %}
+                                <span class="block text-sm text-primary-600">{{ concert.venue_address }}</span>
+                            {% endif %}
+                            {% if concert.venue_postcode %}
+                                <span class="block text-sm text-primary-600">{{ concert.venue_postcode }}</span>
+                            {% endif %}
+                        </p>
+                        {% if concert.venue_map_link %}
+                            <a href="{{ concert.venue_map_link }}" target="_blank" rel="noopener" class="inline-block mt-2 text-sm text-accent-600 hover:text-accent-700">
+                                View on map →
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Tickets -->
+                    <div class="border-t border-primary-200 pt-6">
+                        <h3 class="font-semibold text-primary-900 mb-3">Tickets</h3>
+
+                        {% if concert.ticket_source == 'internal' %}
+                            <div class="mb-4">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-primary-700">Full price</span>
+                                    <span class="font-semibold text-primary-900">£{{ concert.full_price }}</span>
+                                </div>
+                                {% if concert.discount_price %}
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-primary-600">{{ concert.discount_label }}</span>
+                                    <span class="text-primary-700">£{{ concert.discount_price }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            {% if concert.is_sold_out %}
+                                <div class="w-full py-3 bg-primary-300 text-primary-600 text-center font-semibold rounded-lg">
+                                    Sold Out
+                                </div>
+                            {% else %}
+                                <a href="{% url 'concerts:order_tickets' concert.slug %}" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                                    Buy Tickets
+                                </a>
+                                {% if concert.tickets_remaining %}
+                                    <p class="text-center text-sm text-primary-500 mt-2">{{ concert.tickets_remaining }} tickets remaining</p>
+                                {% endif %}
+                            {% endif %}
+
+                        {% elif concert.ticket_source == 'external' %}
+                            <a href="{{ concert.external_ticket_url }}" target="_blank" rel="noopener" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                                Get Tickets
+                                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
+                            <p class="text-center text-sm text-primary-500 mt-2">Tickets from external provider</p>
+
+                        {% else %}
+                            <p class="text-primary-600">Free entry or by invitation</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

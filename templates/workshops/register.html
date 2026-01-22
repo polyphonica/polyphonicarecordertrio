@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - {{ workshop.title }} - Polyphonica Recorder Trio{% endblock %}
+
+{% block content %}
+<section class="py-16 px-4">
+    <div class="max-w-2xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav class="mb-8 text-sm">
+            <a href="{% url 'workshops:index' %}" class="text-accent-600 hover:text-accent-700">Workshops</a>
+            <span class="mx-2 text-primary-400">/</span>
+            <a href="{% url 'workshops:detail' workshop.slug %}" class="text-accent-600 hover:text-accent-700">{{ workshop.title }}</a>
+            <span class="mx-2 text-primary-400">/</span>
+            <span class="text-primary-600">Register</span>
+        </nav>
+
+        <h1 class="text-3xl font-serif font-bold text-primary-900 mb-2">Register for Workshop</h1>
+        <p class="text-primary-600 mb-8">{{ workshop.title }} - {{ workshop.date|date:"l, j F Y" }}</p>
+
+        <!-- Workshop Summary -->
+        <div class="bg-primary-50 rounded-xl p-6 mb-8">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="font-semibold text-primary-900">{{ workshop.title }}</h3>
+                    <p class="text-sm text-primary-600">{{ workshop.date|date:"l, j F Y" }} • {{ workshop.start_time|time:"g:i A" }} - {{ workshop.end_time|time:"g:i A" }}</p>
+                    <p class="text-sm text-primary-600">{{ workshop.get_delivery_method_display }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-2xl font-bold text-primary-900">£{{ workshop.price }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Info Box (for non-logged-in users) -->
+        {% if not user.is_authenticated %}
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-blue-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <h4 class="font-semibold text-blue-900 mb-1">An account will be created for you</h4>
+                    <p class="text-sm text-blue-700">
+                        We'll create an account using your email address so you can access workshop materials
+                        and manage your booking. Your login details will be emailed to you.
+                    </p>
+                    <p class="text-sm text-blue-600 mt-2">
+                        Already have an account?
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="font-medium underline">Log in first</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Registration Form -->
+        <form method="post" class="bg-white rounded-xl shadow-lg p-8">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <ul class="list-disc list-inside">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <h2 class="text-xl font-serif font-semibold text-primary-900 mb-6">Your Details</h2>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label for="first_name" class="block text-sm font-medium text-primary-700 mb-2">First Name *</label>
+                    <input type="text" id="first_name" name="first_name"
+                           value="{{ form.first_name.value|default:'' }}" required
+                           class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-colors">
+                </div>
+                <div>
+                    <label for="last_name" class="block text-sm font-medium text-primary-700 mb-2">Last Name *</label>
+                    <input type="text" id="last_name" name="last_name"
+                           value="{{ form.last_name.value|default:'' }}" required
+                           class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-colors">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="email" class="block text-sm font-medium text-primary-700 mb-2">Email *</label>
+                <input type="email" id="email" name="email"
+                       value="{{ form.email.value|default:'' }}" required
+                       {% if user.is_authenticated %}readonly{% endif %}
+                       class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-colors {% if user.is_authenticated %}bg-primary-50{% endif %}">
+                {% if not user.is_authenticated %}
+                <p class="mt-1 text-xs text-primary-500">Your account login details will be sent to this email</p>
+                {% endif %}
+            </div>
+
+            <div class="mb-6">
+                <label for="phone" class="block text-sm font-medium text-primary-700 mb-2">Phone Number</label>
+                <input type="tel" id="phone" name="phone"
+                       value="{{ form.phone.value|default:'' }}"
+                       class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-colors">
+            </div>
+
+            {% if workshop.is_in_person %}
+            <!-- In-Person Workshop Fields -->
+            <div class="border-t border-primary-200 pt-6 mb-6">
+                <h2 class="text-xl font-serif font-semibold text-primary-900 mb-4">In-Person Workshop Details</h2>
+
+                <div class="mb-6">
+                    <label for="emergency_contact" class="block text-sm font-medium text-primary-700 mb-2">Emergency Contact *</label>
+                    <input type="text" id="emergency_contact" name="emergency_contact"
+                           value="{{ form.emergency_contact.value|default:'' }}" required
+                           placeholder="Name and phone number"
+                           class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-colors">
+                    <p class="mt-1 text-xs text-primary-500">Name and phone number of someone we can contact in an emergency</p>
+                </div>
+
+                <div class="mb-6">
+                    <label for="instruments" class="block text-sm font-medium text-primary-700 mb-2">Instruments *</label>
+                    <textarea id="instruments" name="instruments" rows="2" required
+                              class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-colors resize-none"
+                              placeholder="e.g., Soprano, Alto, Tenor recorders">{{ form.instruments.value|default:'' }}</textarea>
+                    <p class="mt-1 text-xs text-primary-500">What instruments will you be bringing to the workshop?</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="mb-6">
+                <label for="special_requirements" class="block text-sm font-medium text-primary-700 mb-2">Special Requirements</label>
+                <textarea id="special_requirements" name="special_requirements" rows="3"
+                          class="w-full px-4 py-3 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-colors resize-none"
+                          placeholder="Dietary, accessibility, or other requirements">{{ form.special_requirements.value|default:'' }}</textarea>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="border-t border-primary-200 pt-6 mb-6">
+                <h2 class="text-xl font-serif font-semibold text-primary-900 mb-4">Terms and Conditions</h2>
+
+                {% if terms %}
+                <div class="bg-primary-50 rounded-lg p-4 mb-4 max-h-48 overflow-y-auto text-sm text-primary-700">
+                    {{ terms.content|linebreaks }}
+                </div>
+                {% else %}
+                <div class="bg-primary-50 rounded-lg p-4 mb-4 text-sm text-primary-700">
+                    <p>By registering for this workshop, you agree to our standard terms and conditions including:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                        <li>Cancellations made 7 or more days before the workshop: full refund</li>
+                        <li>Cancellations made less than 7 days before: no refund</li>
+                        <li>We reserve the right to cancel workshops with full refunds issued</li>
+                    </ul>
+                </div>
+                {% endif %}
+
+                <label class="flex items-start">
+                    <input type="checkbox" name="terms_accepted" required
+                           class="mt-1 mr-3 h-4 w-4 text-accent-600 border-primary-300 rounded focus:ring-accent-500">
+                    <span class="text-sm text-primary-700">
+                        I accept the terms and conditions *
+                    </span>
+                </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                    class="w-full px-6 py-4 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors duration-200 text-lg">
+                Continue to Payment - £{{ workshop.price }}
+            </button>
+
+            <p class="text-center text-sm text-primary-500 mt-4">
+                Secure payment processed by Stripe
+            </p>
+        </form>
+    </div>
+</section>
+{% endblock %}

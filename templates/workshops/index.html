@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Workshops - Polyphonica Recorder Trio{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="py-16 px-4 bg-primary-100">
+    <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl font-serif font-bold text-primary-900 mb-4">Workshops</h1>
+        <p class="text-lg text-primary-600">Learn from experienced performers in our hands-on workshops.</p>
+    </div>
+</section>
+
+<!-- Workshops List -->
+<section class="py-16 px-4 bg-white">
+    <div class="max-w-4xl mx-auto">
+        {% if workshops %}
+            <div class="space-y-6">
+                {% for workshop in workshops %}
+                <a href="{{ workshop.get_absolute_url }}" class="block bg-primary-50 rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="md:flex">
+                        {% if workshop.image %}
+                            <div class="md:w-48 md:flex-shrink-0">
+                                <img src="{{ workshop.image.url }}" alt="{{ workshop.title }}" class="w-full h-48 md:h-full object-cover">
+                            </div>
+                        {% endif %}
+                        <div class="p-6 flex-grow">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="px-3 py-1 bg-accent-100 text-accent-700 text-sm font-medium rounded-full">
+                                    {{ workshop.date|date:"l, j F Y" }}
+                                </span>
+                                <span class="px-3 py-1 bg-primary-200 text-primary-700 text-sm rounded-full">
+                                    {{ workshop.get_delivery_method_display }}
+                                </span>
+                                {% if workshop.is_full %}
+                                    <span class="px-3 py-1 bg-red-100 text-red-700 text-sm font-medium rounded-full">
+                                        Sold Out
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <h3 class="text-xl font-serif font-semibold text-primary-900 mb-2">{{ workshop.title }}</h3>
+
+                            {% if workshop.short_description %}
+                                <p class="text-primary-600 mb-3">{{ workshop.short_description }}</p>
+                            {% endif %}
+
+                            <div class="flex flex-wrap items-center gap-4 text-sm text-primary-600">
+                                <span>
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    {{ workshop.start_time|time:"g:i A" }} - {{ workshop.end_time|time:"g:i A" }}
+                                </span>
+                                {% if workshop.is_in_person and workshop.venue_name %}
+                                    <span>
+                                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        {{ workshop.venue_name }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="mt-4 flex items-center justify-between">
+                                <span class="text-lg font-semibold text-primary-900">£{{ workshop.price }}</span>
+                                {% if not workshop.is_full %}
+                                    <span class="text-sm text-primary-500">{{ workshop.places_remaining }} places remaining</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12 bg-primary-50 rounded-xl">
+                <svg class="w-16 h-16 mx-auto text-primary-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <p class="text-primary-600">No workshops scheduled at the moment.</p>
+                <p class="text-primary-500 text-sm mt-2">Check back soon for upcoming learning opportunities.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Info Section -->
+<section class="py-16 px-4 bg-primary-50">
+    <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-serif font-semibold text-primary-900 mb-6 text-center">About Our Workshops</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="w-12 h-12 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-primary-900 mb-2">Expert Tuition</h3>
+                <p class="text-primary-600 text-sm">Learn from experienced professional performers.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-primary-900 mb-2">Small Groups</h3>
+                <p class="text-primary-600 text-sm">Limited places ensure personal attention for all participants.</p>
+            </div>
+            <div class="text-center">
+                <div class="w-12 h-12 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-primary-900 mb-2">Materials Included</h3>
+                <p class="text-primary-600 text-sm">Workshop materials available for download before and after.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

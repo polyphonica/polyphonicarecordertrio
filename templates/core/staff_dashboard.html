@@ -1,0 +1,139 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Staff Dashboard - Polyphonica{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Overview of upcoming events and recent activity{% endblock %}
+
+{% block staff_content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold text-primary-900">{{ upcoming_workshops|length }}</div>
+        <div class="text-sm text-primary-600">Upcoming Workshops</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold text-primary-900">{{ total_workshop_registrations }}</div>
+        <div class="text-sm text-primary-600">Workshop Registrations</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold text-primary-900">{{ upcoming_concerts|length }}</div>
+        <div class="text-sm text-primary-600">Upcoming Concerts</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold text-primary-900">{{ total_tickets_sold }}</div>
+        <div class="text-sm text-primary-600">Tickets Sold</div>
+    </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-8">
+    <!-- Upcoming Workshops -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100 flex justify-between items-center">
+            <h2 class="font-semibold text-primary-900">Upcoming Workshops</h2>
+            <a href="{% url 'workshops:staff_workshop_list' %}" class="text-sm text-accent-600 hover:text-accent-700">View all</a>
+        </div>
+        <div class="p-6">
+            {% if upcoming_workshops %}
+                <div class="space-y-4">
+                    {% for workshop in upcoming_workshops %}
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <a href="{% url 'workshops:staff_workshop_edit' workshop.pk %}" class="font-medium text-primary-900 hover:text-accent-600">
+                                {{ workshop.title }}
+                            </a>
+                            <div class="text-sm text-primary-500">{{ workshop.date|date:"D, j M Y" }} - {{ workshop.current_registrations }}/{{ workshop.max_participants }}</div>
+                        </div>
+                        <a href="{% url 'workshops:staff_workshop_attendees' workshop.pk %}" class="text-sm text-accent-600 hover:text-accent-700">
+                            Attendees
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-primary-500 text-sm">No upcoming workshops</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Upcoming Concerts -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100 flex justify-between items-center">
+            <h2 class="font-semibold text-primary-900">Upcoming Concerts</h2>
+            <a href="{% url 'concerts:staff_concert_list' %}" class="text-sm text-accent-600 hover:text-accent-700">View all</a>
+        </div>
+        <div class="p-6">
+            {% if upcoming_concerts %}
+                <div class="space-y-4">
+                    {% for concert in upcoming_concerts %}
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <a href="{% url 'concerts:staff_concert_edit' concert.pk %}" class="font-medium text-primary-900 hover:text-accent-600">
+                                {{ concert.title }}
+                            </a>
+                            <div class="text-sm text-primary-500">{{ concert.date|date:"D, j M Y" }} - {{ concert.venue_name }}</div>
+                        </div>
+                        {% if concert.ticket_source == 'internal' %}
+                        <a href="{% url 'concerts:staff_concert_orders' concert.pk %}" class="text-sm text-accent-600 hover:text-accent-700">
+                            Orders
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-primary-500 text-sm">No upcoming concerts</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Workshop Registrations -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100">
+            <h2 class="font-semibold text-primary-900">Recent Workshop Registrations</h2>
+        </div>
+        <div class="p-6">
+            {% if recent_workshop_registrations %}
+                <div class="space-y-3">
+                    {% for reg in recent_workshop_registrations %}
+                    <div class="flex justify-between items-start text-sm">
+                        <div>
+                            <span class="font-medium text-primary-800">{{ reg.user.get_full_name|default:reg.user.email }}</span>
+                            <span class="text-primary-500">registered for</span>
+                            <span class="text-primary-700">{{ reg.workshop.title }}</span>
+                        </div>
+                        <span class="text-primary-400">{{ reg.created_at|date:"j M" }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-primary-500 text-sm">No recent registrations</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Ticket Orders -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100">
+            <h2 class="font-semibold text-primary-900">Recent Ticket Orders</h2>
+        </div>
+        <div class="p-6">
+            {% if recent_ticket_orders %}
+                <div class="space-y-3">
+                    {% for order in recent_ticket_orders %}
+                    <div class="flex justify-between items-start text-sm">
+                        <div>
+                            <span class="font-medium text-primary-800">{{ order.name }}</span>
+                            <span class="text-primary-500">{{ order.quantity }}x</span>
+                            <span class="text-primary-700">{{ order.concert.title }}</span>
+                        </div>
+                        <span class="text-primary-400">{{ order.created_at|date:"j M" }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-primary-500 text-sm">No recent orders</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
