@@ -1,0 +1,14 @@
+[Unit]
+Description=Polyphonica Gunicorn Daemon
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/polyphonica
+ExecStart=/var/www/polyphonica/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8003 polyphonica.wsgi:application
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
