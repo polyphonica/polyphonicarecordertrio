@@ -35,6 +35,10 @@
                 Login
             </button>
 
+            <p class="text-center mt-4">
+                <a href="{% url 'accounts:password_reset' %}" class="text-sm text-accent-600 hover:text-accent-700">Forgot your password?</a>
+            </p>
+
             {% if next %}
             <input type="hidden" name="next" value="{{ next }}">
             {% endif %}
