@@ -2,7 +2,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.utils import timezone
+from django.http import HttpResponse
 from django import forms
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 from .models import Workshop, WorkshopRegistration, WorkshopTerms
 
@@ -127,3 +134,134 @@ def workshop_delete(request, pk):
         'workshop': workshop,
     }
     return render(request, 'workshops/staff/workshop_delete.html', context)
+
+
+@staff_member_required
+def workshop_attendees_pdf(request, pk):
+    """Generate PDF attendance list for a workshop."""
+    workshop = get_object_or_404(Workshop, pk=pk)
+
+    # Get paid/confirmed registrations only
+    registrations = WorkshopRegistration.objects.filter(
+        workshop=workshop,
+        status__in=['paid', 'attended']
+    ).select_related('user').order_by('user__last_name', 'user__first_name')
+
+    # Create the HttpResponse object with PDF headers
+    response = HttpResponse(content_type='application/pdf')
+    filename = f"attendees-{workshop.slug}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    # Create the PDF document (landscape orientation)
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=landscape(A4),
+        rightMargin=15*mm,
+        leftMargin=15*mm,
+        topMargin=15*mm,
+        bottomMargin=15*mm
+    )
+
+    # Styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        spaceAfter=2*mm
+    )
+    subtitle_style = ParagraphStyle(
+        'CustomSubtitle',
+        parent=styles['Normal'],
+        fontSize=11,
+        spaceAfter=5*mm,
+        textColor=colors.grey
+    )
+
+    # Build content
+    elements = []
+
+    # Title
+    elements.append(Paragraph(workshop.title, title_style))
+
+    # Workshop details
+    workshop_date = workshop.date.strftime('%A, %d %B %Y')
+    workshop_time = f"{workshop.start_time.strftime('%H:%M')} - {workshop.end_time.strftime('%H:%M')}"
+    venue = workshop.venue_name if workshop.is_in_person else "Online"
+
+    details = f"{workshop_date} | {workshop_time} | {venue}"
+    elements.append(Paragraph(details, subtitle_style))
+
+    elements.append(Spacer(1, 5*mm))
+
+    # Attendance table
+    if registrations:
+        # Table header - landscape gives us more width for signature column
+        if workshop.is_in_person:
+            header = ['#', 'Name', 'Phone', 'Instruments', 'Signature']
+            col_widths = [10*mm, 60*mm, 35*mm, 80*mm, 70*mm]
+        else:
+            header = ['#', 'Name', 'Email', 'Signature']
+            col_widths = [10*mm, 70*mm, 80*mm, 95*mm]
+
+        data = [header]
+
+        # Table rows
+        for i, reg in enumerate(registrations, 1):
+            name = reg.user.get_full_name() or reg.user.username
+            phone = reg.phone or '-'
+            email = reg.user.email
+            instruments = reg.instruments or '-'
+
+            if workshop.is_in_person:
+                row = [str(i), name, phone, instruments, '']
+            else:
+                row = [str(i), name, email, '']
+
+            data.append(row)
+
+        # Create table
+        table = Table(data, colWidths=col_widths, repeatRows=1)
+
+        # Table styling
+        table.setStyle(TableStyle([
+            # Header
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 4*mm),
+            ('TOPPADDING', (0, 0), (-1, 0), 4*mm),
+
+            # Body
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 3*mm),
+            ('TOPPADDING', (0, 1), (-1, -1), 3*mm),
+
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d1d5db')),
+
+            # Alternating row colors
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f9fafb')]),
+
+            # Alignment
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),  # Number column
+            ('ALIGN', (-1, 0), (-1, -1), 'CENTER'),  # Present column
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+
+        elements.append(table)
+
+        # Summary
+        elements.append(Spacer(1, 8*mm))
+        summary = f"Total confirmed attendees: {registrations.count()} / {workshop.max_participants}"
+        elements.append(Paragraph(summary, styles['Normal']))
+
+    else:
+        elements.append(Paragraph("No confirmed registrations.", styles['Normal']))
+
+    # Build PDF
+    doc.build(elements)
+
+    return response
