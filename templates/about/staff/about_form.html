@@ -1,0 +1,80 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Edit About Content - Polyphonica{% endblock %}
+{% block page_title %}About Polyphonica{% endblock %}
+{% block page_subtitle %}Edit the main About page content{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'about:staff_player_list' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+    Manage Musicians
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<form method="post" enctype="multipart/form-data" class="max-w-4xl">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <p class="font-medium mb-2">Please correct the errors below:</p>
+        <ul class="list-disc list-inside">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Basic Info -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Trio Information</h2>
+
+        <div class="mb-4">
+            <label for="id_name" class="block text-sm font-medium text-primary-700 mb-1">Trio Name *</label>
+            <input type="text" name="name" id="id_name" value="{{ form.name.value|default:'Polyphonica Recorder Trio' }}" required
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+        </div>
+
+        <div class="mb-4">
+            <label for="id_tagline" class="block text-sm font-medium text-primary-700 mb-1">Tagline</label>
+            <input type="text" name="tagline" id="id_tagline" value="{{ form.tagline.value|default:'' }}"
+                   placeholder="A short catchy phrase for the header"
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+            <p class="text-xs text-primary-500 mt-1">Displayed in the hero section of the About page</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="id_hero_image" class="block text-sm font-medium text-primary-700 mb-1">Hero Image</label>
+            {% if trio_info.hero_image %}
+                <div class="mb-2">
+                    <img src="{{ trio_info.hero_image.url }}" alt="" class="h-32 rounded">
+                </div>
+            {% endif %}
+            <input type="file" name="hero_image" id="id_hero_image" accept="image/*"
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg">
+            <p class="text-xs text-primary-500 mt-1">Images will be automatically resized for optimal display</p>
+        </div>
+    </div>
+
+    <!-- Description -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Content</h2>
+
+        <div>
+            <label for="id_description" class="block text-sm font-medium text-primary-700 mb-1">Main Description *</label>
+            <textarea name="description" id="id_description" rows="8" required
+                      class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">{{ form.description.value|default:'' }}</textarea>
+            <p class="text-xs text-primary-500 mt-1">The main description of the trio displayed on the About page</p>
+        </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex justify-end">
+        <button type="submit" class="px-6 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors">
+            Save Changes
+        </button>
+    </div>
+</form>
+{% endblock %}

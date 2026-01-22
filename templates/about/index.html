@@ -17,18 +17,14 @@
 <section class="py-16 px-4 bg-white">
     <div class="max-w-4xl mx-auto">
         {% if trio_info %}
+            {% if trio_info.hero_image %}
+            <div class="mb-8">
+                <img src="{{ trio_info.hero_image.url }}" alt="{{ trio_info.name }}" class="w-full h-64 md:h-96 object-cover rounded-xl">
+            </div>
+            {% endif %}
             <div class="prose prose-lg max-w-none text-primary-700">
                 {{ trio_info.description|linebreaks }}
             </div>
-
-            {% if trio_info.history %}
-            <div class="mt-12">
-                <h2 class="text-2xl font-serif font-semibold text-primary-900 mb-4">Our Story</h2>
-                <div class="prose prose-lg max-w-none text-primary-700">
-                    {{ trio_info.history|linebreaks }}
-                </div>
-            </div>
-            {% endif %}
         {% else %}
             <p class="text-lg text-primary-700 leading-relaxed">
                 Polyphonica Recorder Trio brings together three accomplished musicians united by their passion for the recorder and its vast repertoire. From Renaissance masterpieces to contemporary commissions, we explore the full expressive range of this versatile instrument family.

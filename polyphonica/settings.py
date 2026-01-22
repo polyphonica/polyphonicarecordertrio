@@ -118,7 +118,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (uploads)
-MEDIA_URL = 'media/'
+MEDIA_URL = 'uploads/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type

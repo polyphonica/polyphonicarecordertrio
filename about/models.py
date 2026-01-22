@@ -1,12 +1,13 @@
 from django.db import models
 
+from core.image_utils import process_uploaded_image
+
 
 class TrioInfo(models.Model):
     """General information about the trio (singleton)."""
     name = models.CharField(max_length=200, default="Polyphonica Recorder Trio")
     tagline = models.CharField(max_length=300, blank=True)
     description = models.TextField(help_text="Main description of the trio")
-    history = models.TextField(blank=True, help_text="History and background")
     hero_image = models.ImageField(upload_to='about/', blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -18,6 +19,11 @@ class TrioInfo(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Resize hero image on upload
+        process_uploaded_image(self, 'hero_image', max_width=1600, max_height=900)
+        super().save(*args, **kwargs)
 
 
 class PlayerBio(models.Model):
@@ -40,3 +46,8 @@ class PlayerBio(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Resize photo on upload
+        process_uploaded_image(self, 'photo', max_width=800, max_height=800)
+        super().save(*args, **kwargs)

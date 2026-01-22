@@ -30,6 +30,10 @@
                class="px-4 py-2 rounded-md text-sm font-medium {% if 'concert' in request.resolver_match.url_name %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
                 Concerts
             </a>
+            <a href="{% url 'about:staff_about_edit' %}"
+               class="px-4 py-2 rounded-md text-sm font-medium {% if 'about' in request.resolver_match.url_name or 'player' in request.resolver_match.url_name %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
+                About
+            </a>
             <span class="flex-grow"></span>
             <a href="{% url 'admin:index' %}" target="_blank"
                class="px-4 py-2 rounded-md text-sm font-medium text-primary-500 hover:bg-primary-100">

@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.text import slugify
 
+from core.image_utils import process_uploaded_image
+
 
 class Workshop(models.Model):
     """Workshop listing."""
@@ -81,6 +83,10 @@ class Workshop(models.Model):
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
+
+        # Resize image on upload for consistent quality
+        process_uploaded_image(self, 'image', max_width=1200, max_height=800)
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
