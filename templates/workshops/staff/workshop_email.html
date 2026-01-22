@@ -1,0 +1,77 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Email Attendees - {{ workshop.title }} - Polyphonica{% endblock %}
+{% block page_title %}Email Attendees{% endblock %}
+{% block page_subtitle %}{{ workshop.title }} - {{ workshop.date|date:"l, j F Y" }}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'workshops:staff_workshop_attendees' workshop.pk %}" class="px-4 py-2 border border-primary-300 text-primary-700 font-medium rounded-lg hover:bg-primary-50 transition-colors">
+    Back to Attendees
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Email Form -->
+    <div class="lg:col-span-2">
+        <form method="post" class="bg-white rounded-lg shadow-sm">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="p-4 bg-red-50 border-b border-red-200 text-red-700 text-sm">
+                Please correct the errors below.
+            </div>
+            {% endif %}
+
+            <div class="p-6 border-b border-primary-100">
+                <h2 class="text-lg font-semibold text-primary-900 mb-4">Compose Email</h2>
+
+                <div class="mb-4">
+                    <label for="id_subject" class="block text-sm font-medium text-primary-700 mb-1">Subject *</label>
+                    <input type="text" name="subject" id="id_subject" value="{{ form.subject.value|default:'' }}" required
+                           class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+                </div>
+
+                <div>
+                    <label for="id_message" class="block text-sm font-medium text-primary-700 mb-1">Message *</label>
+                    <textarea name="message" id="id_message" rows="12" required
+                              class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">{{ form.message.value|default:'' }}</textarea>
+                    <p class="text-xs text-primary-500 mt-1">Plain text email. Each recipient receives an individual email.</p>
+                </div>
+            </div>
+
+            <div class="p-6 bg-primary-50 flex items-center justify-between">
+                <span class="text-sm text-primary-600">
+                    Sending to <strong>{{ recipient_count }}</strong> confirmed attendee{{ recipient_count|pluralize }}
+                </span>
+                <button type="submit" class="px-6 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+                    Send Email
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Recipients List -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-primary-100">
+                <h2 class="font-semibold text-primary-900">Recipients ({{ recipient_count }})</h2>
+            </div>
+            <div class="p-4 max-h-96 overflow-y-auto">
+                {% if registrations %}
+                    <ul class="space-y-2">
+                        {% for reg in registrations %}
+                        <li class="text-sm">
+                            <span class="font-medium text-primary-900">{{ reg.user.get_full_name|default:reg.user.username }}</span>
+                            <span class="text-primary-500 block text-xs">{{ reg.user.email }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-primary-500 text-sm">No confirmed attendees.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

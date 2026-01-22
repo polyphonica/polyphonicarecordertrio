@@ -3,6 +3,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.utils import timezone
 from django.http import HttpResponse
+from django.core.mail import send_mass_mail
+from django.conf import settings
 from django import forms
 
 from reportlab.lib import colors
@@ -265,3 +267,67 @@ def workshop_attendees_pdf(request, pk):
     doc.build(elements)
 
     return response
+
+
+class EmailAttendeesForm(forms.Form):
+    """Form for composing email to workshop attendees."""
+    subject = forms.CharField(
+        max_length=200,
+        widget=forms.TextInput(attrs={'placeholder': 'Email subject'})
+    )
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 10, 'placeholder': 'Your message to attendees...'})
+    )
+
+
+@staff_member_required
+def workshop_email_attendees(request, pk):
+    """Send email to all confirmed attendees of a workshop."""
+    workshop = get_object_or_404(Workshop, pk=pk)
+
+    # Get confirmed registrations
+    registrations = WorkshopRegistration.objects.filter(
+        workshop=workshop,
+        status__in=['paid', 'attended']
+    ).select_related('user')
+
+    recipient_count = registrations.count()
+
+    if request.method == 'POST':
+        form = EmailAttendeesForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+
+            # Build email list
+            emails = []
+            for reg in registrations:
+                if reg.user.email:
+                    emails.append((
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [reg.user.email]
+                    ))
+
+            if emails:
+                try:
+                    send_mass_mail(emails, fail_silently=False)
+                    messages.success(request, f'Email sent successfully to {len(emails)} attendee(s).')
+                    return redirect('workshops:staff_workshop_attendees', pk=workshop.pk)
+                except Exception as e:
+                    messages.error(request, f'Error sending email: {str(e)}')
+            else:
+                messages.warning(request, 'No attendees with email addresses found.')
+    else:
+        # Pre-fill subject with workshop name
+        initial_subject = f"Reminder: {workshop.title} - {workshop.date.strftime('%A, %d %B')}"
+        form = EmailAttendeesForm(initial={'subject': initial_subject})
+
+    context = {
+        'form': form,
+        'workshop': workshop,
+        'recipient_count': recipient_count,
+        'registrations': registrations,
+    }
+    return render(request, 'workshops/staff/workshop_email.html', context)
