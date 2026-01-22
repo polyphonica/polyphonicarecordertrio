@@ -29,7 +29,6 @@ class TrioInfo(models.Model):
 class PlayerBio(models.Model):
     """Individual player biographies."""
     name = models.CharField(max_length=100)
-    role = models.CharField(max_length=100, blank=True, help_text="e.g., 'Soprano & Alto Recorders'")
     bio = models.TextField(help_text="Player biography")
     photo = models.ImageField(upload_to='players/', blank=True, null=True)
     website = models.URLField(blank=True)

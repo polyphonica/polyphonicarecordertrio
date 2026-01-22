@@ -15,7 +15,7 @@ class TrioInfoAdmin(admin.ModelAdmin):
 
 @admin.register(PlayerBio)
 class PlayerBioAdmin(admin.ModelAdmin):
-    list_display = ['name', 'role', 'display_order', 'is_active']
+    list_display = ['name', 'display_order', 'is_active']
     list_filter = ['is_active']
     list_editable = ['display_order', 'is_active']
     search_fields = ['name', 'bio']

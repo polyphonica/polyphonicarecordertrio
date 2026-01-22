@@ -24,7 +24,7 @@ class PlayerBioForm(forms.ModelForm):
 
     class Meta:
         model = PlayerBio
-        fields = ['name', 'role', 'bio', 'photo', 'website', 'display_order', 'is_active']
+        fields = ['name', 'bio', 'photo', 'website', 'display_order', 'is_active']
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 5}),
         }
