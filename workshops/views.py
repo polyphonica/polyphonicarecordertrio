@@ -232,14 +232,22 @@ def checkout_success(request, slug):
                 payment_intent_id = checkout_session.payment_intent.id
 
         if existing_registration:
-            # Update existing if pending
-            if existing_registration.status == 'pending':
+            # Update existing if pending, cancelled, or refunded (re-registration)
+            if existing_registration.status in ['pending', 'cancelled', 'refunded']:
                 existing_registration.status = 'paid'
                 existing_registration.amount_paid = workshop.price
                 existing_registration.paid_at = timezone.now()
                 existing_registration.stripe_checkout_session_id = session_id
                 existing_registration.stripe_payment_intent_id = payment_intent_id
+                existing_registration.phone = reg_data.get('phone', '') or existing_registration.phone
+                existing_registration.special_requirements = reg_data.get('special_requirements', '') or existing_registration.special_requirements
+                existing_registration.emergency_contact = reg_data.get('emergency_contact', '') or existing_registration.emergency_contact
+                existing_registration.instruments = reg_data.get('instruments', '') or existing_registration.instruments
                 existing_registration.save()
+
+                # Send confirmation email for re-registration
+                send_registration_confirmation_email(user, workshop, existing_registration)
+
             messages.success(request, f'You are registered for {workshop.title}!')
         else:
             # Create the registration
