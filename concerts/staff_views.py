@@ -13,7 +13,7 @@ class ConcertForm(forms.ModelForm):
     class Meta:
         model = Concert
         fields = [
-            'title', 'description', 'programme',
+            'title', 'description',
             'date', 'time', 'doors_open',
             'venue_name', 'venue_address', 'venue_postcode', 'venue_map_link',
             'image',
@@ -24,7 +24,6 @@ class ConcertForm(forms.ModelForm):
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 5}),
-            'programme': forms.Textarea(attrs={'rows': 4}),
             'venue_address': forms.Textarea(attrs={'rows': 2}),
             'date': forms.DateInput(attrs={'type': 'date'}),
             'time': forms.TimeInput(attrs={'type': 'time'}),

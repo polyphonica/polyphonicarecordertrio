@@ -24,7 +24,6 @@ class Concert(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     description = models.TextField()
-    programme = models.TextField(blank=True, help_text="Concert programme/repertoire")
 
     # Date and time
     date = models.DateField()
