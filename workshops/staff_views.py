@@ -3,7 +3,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.utils import timezone
 from django.http import HttpResponse
-from django.core.mail import send_mass_mail
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.conf import settings
 from django import forms
 
@@ -299,24 +300,39 @@ def workshop_email_attendees(request, pk):
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
 
-            # Build email list
-            emails = []
+            # Send emails with HTML formatting
+            sent_count = 0
+            errors = []
             for reg in registrations:
                 if reg.user.email:
-                    emails.append((
-                        subject,
-                        message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [reg.user.email]
-                    ))
+                    # Render HTML email
+                    html_message = render_to_string('emails/admin_message.html', {
+                        'subject': subject,
+                        'message': message,
+                        'user': reg.user,
+                        'workshop': workshop,
+                    })
 
-            if emails:
-                try:
-                    send_mass_mail(emails, fail_silently=False)
-                    messages.success(request, f'Email sent successfully to {len(emails)} attendee(s).')
-                    return redirect('workshops:staff_workshop_attendees', pk=workshop.pk)
-                except Exception as e:
-                    messages.error(request, f'Error sending email: {str(e)}')
+                    try:
+                        send_mail(
+                            subject,
+                            message,
+                            settings.DEFAULT_FROM_EMAIL,
+                            [reg.user.email],
+                            html_message=html_message,
+                            fail_silently=False,
+                        )
+                        sent_count += 1
+                    except Exception as e:
+                        errors.append(f'{reg.user.email}: {str(e)}')
+
+            if sent_count > 0:
+                messages.success(request, f'Email sent successfully to {sent_count} attendee(s).')
+                if errors:
+                    messages.error(request, f'Failed to send to: {", ".join(errors)}')
+                return redirect('workshops:staff_workshop_attendees', pk=workshop.pk)
+            elif errors:
+                messages.error(request, f'Failed to send emails: {", ".join(errors)}')
             else:
                 messages.warning(request, 'No attendees with email addresses found.')
     else:

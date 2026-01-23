@@ -1,0 +1,43 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}{{ subject }} - Polyphonica Recorder Trio{% endblock %}
+
+{% block content %}
+<h2 style="margin: 0 0 20px 0; color: #403831; font-size: 24px; font-weight: 600;">
+    {{ subject }}
+</h2>
+
+<p style="margin: 0 0 20px 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Hello {{ user.first_name }},
+</p>
+
+<div style="margin: 0 0 30px 0; color: #584c40; font-size: 16px; line-height: 1.8; white-space: pre-wrap;">{{ message }}</div>
+
+<!-- Workshop Details Box -->
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 30px 0;">
+    <tr>
+        <td style="background-color: #f9f7f5; border-radius: 8px; padding: 20px; border-left: 4px solid #d68249;">
+            <p style="margin: 0 0 5px 0; color: #7a6b5a; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">
+                Regarding Workshop
+            </p>
+            <p style="margin: 0; color: #403831; font-size: 18px; font-weight: 600;">
+                {{ workshop.title }}
+            </p>
+            <p style="margin: 10px 0 0 0; color: #584c40; font-size: 14px;">
+                {{ workshop.date|date:"l, d F Y" }} &bull; {{ workshop.start_time|time:"g:i A" }} - {{ workshop.end_time|time:"g:i A" }}
+            </p>
+        </td>
+    </tr>
+</table>
+
+<p style="margin: 30px 0 0 0; color: #584c40; font-size: 16px; line-height: 1.6;">
+    Best regards,<br>
+    <strong style="color: #403831;">Polyphonica Recorder Trio</strong>
+</p>
+
+<!-- Contact Info -->
+<p style="margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #e8e4de; color: #7a6b5a; font-size: 13px;">
+    Questions? Reply to this email or contact us at
+    <a href="mailto:info@polyphonicarecordertrio.com" style="color: #d68249; text-decoration: none;">info@polyphonicarecordertrio.com</a>
+</p>
+{% endblock %}
