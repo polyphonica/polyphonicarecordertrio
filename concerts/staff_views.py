@@ -35,8 +35,8 @@ class ConcertForm(forms.ModelForm):
 @staff_member_required
 def concert_list(request):
     """List all concerts for staff."""
-    upcoming = Concert.objects.filter(date__gte=timezone.now().date()).order_by('date')
-    past = Concert.objects.filter(date__lt=timezone.now().date()).order_by('-date')[:20]
+    upcoming = Concert.objects.select_related('programme').filter(date__gte=timezone.now().date()).order_by('date')
+    past = Concert.objects.select_related('programme').filter(date__lt=timezone.now().date()).order_by('-date')[:20]
 
     context = {
         'upcoming_concerts': upcoming,

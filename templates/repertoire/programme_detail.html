@@ -11,6 +11,9 @@
 
 {% block page_actions %}
 <div class="flex gap-2">
+    <a href="{% url 'repertoire:programme_duplicate' programme.pk %}" class="px-4 py-2 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg font-medium transition-colors">
+        Duplicate
+    </a>
     <a href="{% url 'repertoire:programme_pdf_performer' programme.pk %}" class="px-4 py-2 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg font-medium transition-colors">
         Performer PDF
     </a>

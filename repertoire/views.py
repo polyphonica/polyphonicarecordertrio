@@ -268,6 +268,36 @@ def programme_delete(request, pk):
     return render(request, 'repertoire/programme_delete.html', {'programme': programme})
 
 
+@staff_member_required
+def programme_duplicate(request, pk):
+    """Duplicate an existing programme with all its items."""
+    original = get_object_or_404(Programme, pk=pk)
+
+    # Create a copy of the programme
+    new_programme = Programme.objects.create(
+        title=f"{original.title} (Copy)",
+        status='draft',
+        notes=original.notes,
+    )
+
+    # Copy all items
+    for item in original.items.all():
+        ProgrammeItem.objects.create(
+            programme=new_programme,
+            order=item.order,
+            item_type=item.item_type,
+            piece=item.piece,
+            title=item.title,
+            speaker=item.speaker,
+            talk_text=item.talk_text,
+            custom_duration=item.custom_duration,
+            notes=item.notes,
+        )
+
+    messages.success(request, f'Programme duplicated as "{new_programme.title}".')
+    return redirect('repertoire:programme_detail', pk=new_programme.pk)
+
+
 # =============================================================================
 # Programme Item AJAX Views
 # =============================================================================

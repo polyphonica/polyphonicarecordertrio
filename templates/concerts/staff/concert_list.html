@@ -21,9 +21,10 @@
         <table class="w-full">
             <thead class="bg-primary-50 text-left text-sm text-primary-600">
                 <tr>
-                    <th class="px-6 py-3">Concert</th>
                     <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Concert</th>
                     <th class="px-6 py-3">Venue</th>
+                    <th class="px-6 py-3">Programme</th>
                     <th class="px-6 py-3">Tickets</th>
                     <th class="px-6 py-3">Status</th>
                     <th class="px-6 py-3">Actions</th>
@@ -32,13 +33,22 @@
             <tbody class="divide-y divide-primary-100">
                 {% for concert in upcoming_concerts %}
                 <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4 text-sm text-primary-600 whitespace-nowrap">{{ concert.date|date:"D, j M Y" }}</td>
                     <td class="px-6 py-4">
                         <a href="{% url 'concerts:staff_concert_edit' concert.pk %}" class="font-medium text-primary-900 hover:text-accent-600">
                             {{ concert.title }}
                         </a>
                     </td>
-                    <td class="px-6 py-4 text-sm text-primary-600">{{ concert.date|date:"D, j M Y" }}</td>
                     <td class="px-6 py-4 text-sm text-primary-600">{{ concert.venue_name }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        {% if concert.programme %}
+                        <a href="{% url 'repertoire:programme_detail' concert.programme.pk %}" class="text-accent-600 hover:text-accent-700">
+                            {{ concert.programme.title }}
+                        </a>
+                        {% else %}
+                        <span class="text-primary-400">—</span>
+                        {% endif %}
+                    </td>
                     <td class="px-6 py-4 text-sm">
                         {% if concert.ticket_source == 'internal' %}
                             <span class="{% if concert.is_sold_out %}text-red-600{% else %}text-primary-600{% endif %}">
@@ -87,18 +97,28 @@
         <table class="w-full">
             <thead class="bg-primary-50 text-left text-sm text-primary-600">
                 <tr>
-                    <th class="px-6 py-3">Concert</th>
                     <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Concert</th>
                     <th class="px-6 py-3">Venue</th>
+                    <th class="px-6 py-3">Programme</th>
                     <th class="px-6 py-3">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-primary-100">
                 {% for concert in past_concerts %}
                 <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4 text-sm text-primary-500 whitespace-nowrap">{{ concert.date|date:"j M Y" }}</td>
                     <td class="px-6 py-4 text-primary-700">{{ concert.title }}</td>
-                    <td class="px-6 py-4 text-sm text-primary-500">{{ concert.date|date:"j M Y" }}</td>
                     <td class="px-6 py-4 text-sm text-primary-500">{{ concert.venue_name }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        {% if concert.programme %}
+                        <a href="{% url 'repertoire:programme_detail' concert.programme.pk %}" class="text-accent-600 hover:text-accent-700">
+                            {{ concert.programme.title }}
+                        </a>
+                        {% else %}
+                        <span class="text-primary-400">—</span>
+                        {% endif %}
+                    </td>
                     <td class="px-6 py-4 text-sm space-x-3">
                         {% if concert.ticket_source == 'internal' %}
                         <a href="{% url 'concerts:staff_concert_orders' concert.pk %}" class="text-accent-600 hover:text-accent-700">Orders</a>

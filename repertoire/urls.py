@@ -26,6 +26,7 @@ urlpatterns = [
     path('programmes/<int:pk>/', views.programme_detail, name='programme_detail'),
     path('programmes/<int:pk>/edit/', views.programme_edit, name='programme_edit'),
     path('programmes/<int:pk>/delete/', views.programme_delete, name='programme_delete'),
+    path('programmes/<int:pk>/duplicate/', views.programme_duplicate, name='programme_duplicate'),
 
     # Programme builder AJAX endpoints
     path('programmes/<int:pk>/add-item/', views.programme_add_item, name='programme_add_item'),
