@@ -16,6 +16,7 @@ class Concert(models.Model):
     TICKET_SOURCE_CHOICES = [
         ('internal', 'Sell on this site'),
         ('external', 'External ticket link'),
+        ('door', 'Available on the door'),
         ('none', 'No tickets (free entry or private)'),
     ]
 
@@ -86,6 +87,12 @@ class Concert(models.Model):
 
     def get_absolute_url(self):
         return reverse('concerts:detail', kwargs={'slug': self.slug})
+
+    @property
+    def is_past(self):
+        """Check if concert date has passed."""
+        from django.utils import timezone
+        return self.date < timezone.now().date()
 
     @property
     def is_sold_out(self):

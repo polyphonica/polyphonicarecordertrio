@@ -133,7 +133,10 @@
                     <div class="border-t border-primary-200 pt-6">
                         <h3 class="font-semibold text-primary-900 mb-3">Tickets</h3>
 
-                        {% if concert.ticket_source == 'internal' %}
+                        {% if concert.is_past %}
+                            <p class="text-primary-600">This concert has passed</p>
+
+                        {% elif concert.ticket_source == 'internal' %}
                             <div class="mb-4">
                                 <div class="flex justify-between mb-1">
                                     <span class="text-primary-700">Full price</span>
@@ -167,6 +170,9 @@
                                     Visit ticket provider →
                                 </a>
                             {% endif %}
+
+                        {% elif concert.ticket_source == 'door' %}
+                            <p class="text-primary-600">Tickets available on the door</p>
 
                         {% else %}
                             <p class="text-primary-600">Free entry or by invitation</p>

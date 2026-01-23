@@ -51,6 +51,8 @@
                                 </div>
                             {% elif concert.ticket_source == 'external' %}
                                 <span class="text-sm text-primary-500">External ticketing</span>
+                            {% elif concert.ticket_source == 'door' %}
+                                <span class="text-sm text-primary-500">Tickets on the door</span>
                             {% endif %}
                         </div>
                     </div>
