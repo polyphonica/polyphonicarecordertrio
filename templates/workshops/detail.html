@@ -1,6 +1,76 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ workshop.title }} - Polyphonica Recorder Trio{% endblock %}
+{% block title %}{{ workshop.title }} - {{ workshop.date|date:"j F Y" }} - Polyphonica Recorder Trio{% endblock %}
+
+{% block meta_description %}{{ workshop.short_description|default:workshop.description|truncatewords:30|striptags }}{% endblock %}
+
+{% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ workshop.get_absolute_url }}">{% endblock %}
+
+{% block og_type %}event{% endblock %}
+{% block og_title %}{{ workshop.title }} - {{ workshop.date|date:"j F Y" }}{% endblock %}
+{% block og_description %}{{ workshop.short_description|default:workshop.description|truncatewords:30|striptags }}{% endblock %}
+{% block og_image %}{% if workshop.image %}{{ request.scheme }}://{{ request.get_host }}{{ workshop.image.url }}{% endif %}{% endblock %}
+{% block og_extra %}
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ workshop.get_absolute_url }}">
+{% endblock %}
+
+{% block twitter_title %}{{ workshop.title }} - {{ workshop.date|date:"j F Y" }}{% endblock %}
+{% block twitter_description %}{{ workshop.short_description|default:workshop.description|truncatewords:30|striptags }}{% endblock %}
+{% block twitter_image %}{% if workshop.image %}{{ request.scheme }}://{{ request.get_host }}{{ workshop.image.url }}{% endif %}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "EducationEvent",
+    "name": "{{ workshop.title|escapejs }}",
+    "description": "{{ workshop.short_description|default:workshop.description|truncatewords:50|striptags|escapejs }}",
+    "startDate": "{{ workshop.date|date:'Y-m-d' }}T{{ workshop.start_time|time:'H:i:s' }}",
+    "endDate": "{{ workshop.date|date:'Y-m-d' }}T{{ workshop.end_time|time:'H:i:s' }}",
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "{% if workshop.delivery_method == 'online' %}https://schema.org/OnlineEventAttendanceMode{% elif workshop.delivery_method == 'hybrid' %}https://schema.org/MixedEventAttendanceMode{% else %}https://schema.org/OfflineEventAttendanceMode{% endif %}",
+    {% if workshop.is_in_person and workshop.venue_name %}
+    "location": {
+        "@type": "Place",
+        "name": "{{ workshop.venue_name|escapejs }}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ workshop.venue_address|escapejs }}",
+            "postalCode": "{{ workshop.venue_postcode|escapejs }}"
+        }
+    },
+    {% elif workshop.is_online %}
+    "location": {
+        "@type": "VirtualLocation",
+        "url": "https://polyphonicarecordertrio.com{{ workshop.get_absolute_url }}"
+    },
+    {% endif %}
+    "organizer": {
+        "@type": "PerformingGroup",
+        "name": "Polyphonica Recorder Trio",
+        "url": "https://polyphonicarecordertrio.com"
+    },
+    "performer": {
+        "@type": "PerformingGroup",
+        "name": "Polyphonica Recorder Trio"
+    },
+    "maximumAttendeeCapacity": {{ workshop.max_participants }},
+    "remainingAttendeeCapacity": {{ workshop.places_remaining }}
+    {% if workshop.image %},
+    "image": "{{ request.scheme }}://{{ request.get_host }}{{ workshop.image.url }}"
+    {% endif %}
+    {% if workshop.price %},
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ workshop.price }}",
+        "priceCurrency": "GBP",
+        "availability": "{% if workshop.is_full %}https://schema.org/SoldOut{% else %}https://schema.org/InStock{% endif %}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'workshops:register' workshop.slug %}"
+    }
+    {% endif %}
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <section class="py-16 px-4">

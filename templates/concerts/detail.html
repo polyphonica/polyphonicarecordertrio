@@ -1,6 +1,66 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ concert.title }} - Polyphonica Recorder Trio{% endblock %}
+{% block title %}{{ concert.title }} - {{ concert.date|date:"j F Y" }} - Polyphonica Recorder Trio{% endblock %}
+
+{% block meta_description %}{{ concert.description|truncatewords:30|striptags }}{% endblock %}
+
+{% block canonical %}<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ concert.get_absolute_url }}">{% endblock %}
+
+{% block og_type %}event{% endblock %}
+{% block og_title %}{{ concert.title }} - {{ concert.date|date:"j F Y" }}{% endblock %}
+{% block og_description %}{{ concert.description|truncatewords:30|striptags }}{% endblock %}
+{% block og_image %}{% if concert.image %}{{ request.scheme }}://{{ request.get_host }}{{ concert.image.url }}{% endif %}{% endblock %}
+{% block og_extra %}
+<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ concert.get_absolute_url }}">
+{% endblock %}
+
+{% block twitter_title %}{{ concert.title }} - {{ concert.date|date:"j F Y" }}{% endblock %}
+{% block twitter_description %}{{ concert.description|truncatewords:30|striptags }}{% endblock %}
+{% block twitter_image %}{% if concert.image %}{{ request.scheme }}://{{ request.get_host }}{{ concert.image.url }}{% endif %}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "MusicEvent",
+    "name": "{{ concert.title|escapejs }}",
+    "description": "{{ concert.description|truncatewords:50|striptags|escapejs }}",
+    "startDate": "{{ concert.date|date:'Y-m-d' }}T{{ concert.time|time:'H:i:s' }}",
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "location": {
+        "@type": "Place",
+        "name": "{{ concert.venue_name|escapejs }}",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "{{ concert.venue_address|escapejs }}",
+            "postalCode": "{{ concert.venue_postcode|escapejs }}"
+        }
+    },
+    "performer": {
+        "@type": "PerformingGroup",
+        "name": "Polyphonica Recorder Trio"
+    },
+    "organizer": {
+        "@type": "PerformingGroup",
+        "name": "Polyphonica Recorder Trio",
+        "url": "https://polyphonicarecordertrio.com"
+    }
+    {% if concert.image %},
+    "image": "{{ request.scheme }}://{{ request.get_host }}{{ concert.image.url }}"
+    {% endif %}
+    {% if concert.ticket_source == 'internal' and concert.full_price %},
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ concert.full_price }}",
+        "priceCurrency": "GBP",
+        "availability": "{% if concert.is_sold_out %}https://schema.org/SoldOut{% else %}https://schema.org/InStock{% endif %}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'concerts:order_tickets' concert.slug %}"
+    }
+    {% endif %}
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <section class="py-16 px-4">

@@ -7,6 +7,39 @@
     <title>{% block title %}Polyphonica Recorder Trio{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}Polyphonica Recorder Trio - Professional recorder ensemble performing concerts and workshops{% endblock %}">
 
+    <!-- Canonical URL -->
+    {% block canonical %}{% endblock %}
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:site_name" content="Polyphonica Recorder Trio">
+    <meta property="og:title" content="{% block og_title %}Polyphonica Recorder Trio{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Professional recorder ensemble bringing early and contemporary music to life through concerts and workshops.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% endblock %}">
+    {% block og_extra %}{% endblock %}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Polyphonica Recorder Trio{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Professional recorder ensemble bringing early and contemporary music to life through concerts and workshops.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% endblock %}">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "PerformingGroup",
+        "name": "Polyphonica Recorder Trio",
+        "description": "Professional recorder ensemble bringing early and contemporary music to life",
+        "url": "https://polyphonicarecordertrio.com",
+        "genre": ["Early Music", "Classical", "Contemporary"],
+        "performerIn": {
+            "@type": "MusicEvent"
+        }
+    }
+    </script>
+    {% block structured_data %}{% endblock %}
+
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
