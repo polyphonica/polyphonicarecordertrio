@@ -1,0 +1,49 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Piece Library - Polyphonica{% endblock %}
+
+{% block staff_title %}Piece Library{% endblock %}
+{% block staff_subtitle %}Manage your repertoire{% endblock %}
+
+{% block staff_actions %}
+<a href="{% url 'repertoire:piece_add' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors">
+    Add Piece
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    {% if pieces %}
+    <table class="w-full">
+        <thead class="bg-primary-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Title</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Composer</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Duration</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Catalogue</th>
+                <th class="px-6 py-3 text-right text-sm font-semibold text-primary-900">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-primary-100">
+            {% for piece in pieces %}
+            <tr class="hover:bg-primary-50">
+                <td class="px-6 py-4 font-medium text-primary-900">{{ piece.title }}</td>
+                <td class="px-6 py-4 text-primary-600">{{ piece.composer.name }}</td>
+                <td class="px-6 py-4 text-primary-600">{{ piece.duration_display }}</td>
+                <td class="px-6 py-4 text-primary-600">{{ piece.catalogue_number|default:"—" }}</td>
+                <td class="px-6 py-4 text-right space-x-2">
+                    <a href="{% url 'repertoire:piece_edit' piece.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                    <a href="{% url 'repertoire:piece_delete' piece.pk %}" class="text-red-600 hover:text-red-700">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="p-12 text-center">
+        <p class="text-primary-500 mb-4">No pieces in your library yet.</p>
+        <a href="{% url 'repertoire:piece_add' %}" class="text-accent-600 hover:text-accent-700 font-medium">Add your first piece</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

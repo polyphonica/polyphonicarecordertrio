@@ -1,0 +1,55 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Composers - Polyphonica{% endblock %}
+
+{% block staff_title %}Composers{% endblock %}
+{% block staff_subtitle %}Manage your composer library{% endblock %}
+
+{% block staff_actions %}
+<a href="{% url 'repertoire:composer_add' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors">
+    Add Composer
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    {% if composers %}
+    <table class="w-full">
+        <thead class="bg-primary-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Name</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Dates</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Nationality</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Pieces</th>
+                <th class="px-6 py-3 text-right text-sm font-semibold text-primary-900">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-primary-100">
+            {% for composer in composers %}
+            <tr class="hover:bg-primary-50">
+                <td class="px-6 py-4 font-medium text-primary-900">{{ composer.name }}</td>
+                <td class="px-6 py-4 text-primary-600">
+                    {% if composer.birth_year %}
+                        {{ composer.birth_year }}{% if composer.death_year %}–{{ composer.death_year }}{% endif %}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-primary-600">{{ composer.nationality|default:"—" }}</td>
+                <td class="px-6 py-4 text-primary-600">{{ composer.pieces.count }}</td>
+                <td class="px-6 py-4 text-right space-x-2">
+                    <a href="{% url 'repertoire:composer_edit' composer.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                    <a href="{% url 'repertoire:composer_delete' composer.pk %}" class="text-red-600 hover:text-red-700">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="p-12 text-center">
+        <p class="text-primary-500 mb-4">No composers yet.</p>
+        <a href="{% url 'repertoire:composer_add' %}" class="text-accent-600 hover:text-accent-700 font-medium">Add your first composer</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

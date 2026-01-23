@@ -1,0 +1,52 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}{{ action }} Composer - Polyphonica{% endblock %}
+
+{% block staff_title %}{{ action }} Composer{% endblock %}
+
+{% block staff_content %}
+<div class="max-w-2xl">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label for="id_name" class="block text-sm font-medium text-primary-700 mb-2">Name *</label>
+                {{ form.name }}
+                {% if form.name.errors %}<p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="id_birth_year" class="block text-sm font-medium text-primary-700 mb-2">Birth Year</label>
+                    {{ form.birth_year }}
+                </div>
+                <div>
+                    <label for="id_death_year" class="block text-sm font-medium text-primary-700 mb-2">Death Year</label>
+                    {{ form.death_year }}
+                </div>
+            </div>
+
+            <div>
+                <label for="id_nationality" class="block text-sm font-medium text-primary-700 mb-2">Nationality</label>
+                {{ form.nationality }}
+            </div>
+
+            <div>
+                <label for="id_bio" class="block text-sm font-medium text-primary-700 mb-2">Biography</label>
+                {{ form.bio }}
+                <p class="mt-1 text-sm text-primary-500">For programme notes</p>
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="px-6 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors">
+                    Save Composer
+                </button>
+                <a href="{% url 'repertoire:composer_list' %}" class="px-6 py-2 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg font-medium transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -37,6 +37,7 @@ urlpatterns = [
     path('workshops/', include('workshops.urls')),
     path('media/', include('media_content.urls')),
     path('accounts/', include('accounts.urls')),
+    path('manage/repertoire/', include('repertoire.urls')),
 ]
 
 # Serve media files in development

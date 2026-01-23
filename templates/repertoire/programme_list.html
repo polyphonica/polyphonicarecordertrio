@@ -1,0 +1,59 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Programmes - Polyphonica{% endblock %}
+
+{% block staff_title %}Programmes{% endblock %}
+{% block staff_subtitle %}Create and manage concert programmes{% endblock %}
+
+{% block staff_actions %}
+<a href="{% url 'repertoire:programme_add' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors">
+    New Programme
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    {% if programmes %}
+    <table class="w-full">
+        <thead class="bg-primary-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Title</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Status</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Pieces</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Duration</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Updated</th>
+                <th class="px-6 py-3 text-right text-sm font-semibold text-primary-900">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-primary-100">
+            {% for programme in programmes %}
+            <tr class="hover:bg-primary-50">
+                <td class="px-6 py-4">
+                    <a href="{% url 'repertoire:programme_detail' programme.pk %}" class="font-medium text-accent-600 hover:text-accent-700">
+                        {{ programme.title }}
+                    </a>
+                </td>
+                <td class="px-6 py-4">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full {% if programme.status == 'final' %}bg-green-100 text-green-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                        {{ programme.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-primary-600">{{ programme.piece_count }}</td>
+                <td class="px-6 py-4 text-primary-600">{{ programme.total_duration_display }}</td>
+                <td class="px-6 py-4 text-primary-600">{{ programme.updated_at|date:"j M Y" }}</td>
+                <td class="px-6 py-4 text-right space-x-2">
+                    <a href="{% url 'repertoire:programme_detail' programme.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                    <a href="{% url 'repertoire:programme_delete' programme.pk %}" class="text-red-600 hover:text-red-700">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="p-12 text-center">
+        <p class="text-primary-500 mb-4">No programmes created yet.</p>
+        <a href="{% url 'repertoire:programme_add' %}" class="text-accent-600 hover:text-accent-700 font-medium">Create your first programme</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

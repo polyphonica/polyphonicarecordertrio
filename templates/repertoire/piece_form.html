@@ -1,0 +1,61 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}{{ action }} Piece - Polyphonica{% endblock %}
+
+{% block staff_title %}{{ action }} Piece{% endblock %}
+
+{% block staff_content %}
+<div class="max-w-2xl">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <div>
+                <label for="id_title" class="block text-sm font-medium text-primary-700 mb-2">Title *</label>
+                {{ form.title }}
+                {% if form.title.errors %}<p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label for="id_composer" class="block text-sm font-medium text-primary-700 mb-2">Composer *</label>
+                {{ form.composer }}
+                {% if form.composer.errors %}<p class="mt-1 text-sm text-red-600">{{ form.composer.errors.0 }}</p>{% endif %}
+                <p class="mt-1 text-sm text-primary-500">
+                    <a href="{% url 'repertoire:composer_add' %}" class="text-accent-600 hover:text-accent-700">Add new composer</a>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="id_duration" class="block text-sm font-medium text-primary-700 mb-2">Duration (minutes) *</label>
+                    {{ form.duration }}
+                    {% if form.duration.errors %}<p class="mt-1 text-sm text-red-600">{{ form.duration.errors.0 }}</p>{% endif %}
+                </div>
+                <div>
+                    <label for="id_catalogue_number" class="block text-sm font-medium text-primary-700 mb-2">Catalogue Number</label>
+                    {{ form.catalogue_number }}
+                </div>
+            </div>
+
+            <div>
+                <label for="id_instrumentation" class="block text-sm font-medium text-primary-700 mb-2">Instrumentation</label>
+                {{ form.instrumentation }}
+            </div>
+
+            <div>
+                <label for="id_notes" class="block text-sm font-medium text-primary-700 mb-2">Programme Notes</label>
+                {{ form.notes }}
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="px-6 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors">
+                    Save Piece
+                </button>
+                <a href="{% url 'repertoire:piece_list' %}" class="px-6 py-2 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg font-medium transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
