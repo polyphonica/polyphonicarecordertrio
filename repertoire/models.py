@@ -86,6 +86,31 @@ class Piece(models.Model):
             return f"{hours}h"
         return f"{self.duration}m"
 
+    @property
+    def has_movements(self):
+        """Check if piece has movements."""
+        return self.movements.exists()
+
+
+class Movement(models.Model):
+    """A movement within a piece."""
+    piece = models.ForeignKey(
+        Piece,
+        on_delete=models.CASCADE,
+        related_name='movements'
+    )
+    order = models.PositiveIntegerField(default=0)
+    name = models.CharField(
+        max_length=200,
+        help_text="e.g., 'I. Allegro', 'II. Adagio'"
+    )
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name
+
 
 class Programme(models.Model):
     """Concert programme - a collection of pieces, talks, and intervals."""

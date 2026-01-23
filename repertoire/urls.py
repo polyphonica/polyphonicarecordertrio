@@ -16,6 +16,10 @@ urlpatterns = [
     path('pieces/<int:pk>/edit/', views.piece_edit, name='piece_edit'),
     path('pieces/<int:pk>/delete/', views.piece_delete, name='piece_delete'),
 
+    # Movements
+    path('pieces/<int:pk>/movements/add/', views.movement_add, name='movement_add'),
+    path('movements/<int:pk>/delete/', views.movement_delete, name='movement_delete'),
+
     # Programmes
     path('programmes/', views.programme_list, name='programme_list'),
     path('programmes/add/', views.programme_add, name='programme_add'),

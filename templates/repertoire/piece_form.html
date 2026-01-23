@@ -57,5 +57,105 @@
             </div>
         </form>
     </div>
+
+    {% if piece %}
+    <!-- Movements Section (only shown when editing) -->
+    <div class="bg-white rounded-xl shadow-sm p-6 mt-6">
+        <h3 class="font-semibold text-primary-900 mb-4">Movements</h3>
+        <p class="text-sm text-primary-500 mb-4">Add movements if this piece has multiple parts (e.g., I. Allegro, II. Adagio). Leave empty for single-movement pieces.</p>
+
+        <div id="movements-list" class="space-y-2 mb-4">
+            {% for movement in piece.movements.all %}
+            <div class="movement-item flex items-center gap-2" data-id="{{ movement.id }}">
+                <span class="text-primary-400 cursor-move">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+                    </svg>
+                </span>
+                <span class="flex-1 text-primary-900">{{ movement.name }}</span>
+                <button type="button" class="delete-movement text-red-600 hover:text-red-700 text-sm" data-id="{{ movement.id }}">Remove</button>
+            </div>
+            {% empty %}
+            <p id="no-movements" class="text-sm text-primary-400 italic">No movements added</p>
+            {% endfor %}
+        </div>
+
+        <form id="add-movement-form" class="flex gap-2">
+            <input type="text" id="movement-name" placeholder="e.g., I. Allegro" class="flex-1 px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500">
+            <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                Add
+            </button>
+        </form>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pieceId = {{ piece.pk }};
+        const csrfToken = '{{ csrf_token }}';
+        const movementsList = document.getElementById('movements-list');
+        const noMovements = document.getElementById('no-movements');
+
+        // Add movement
+        document.getElementById('add-movement-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('movement-name');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            fetch(`/manage/repertoire/pieces/${pieceId}/movements/add/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: `name=${encodeURIComponent(name)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (noMovements) noMovements.remove();
+
+                    const div = document.createElement('div');
+                    div.className = 'movement-item flex items-center gap-2';
+                    div.dataset.id = data.movement.id;
+                    div.innerHTML = `
+                        <span class="text-primary-400 cursor-move">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+                            </svg>
+                        </span>
+                        <span class="flex-1 text-primary-900">${data.movement.name}</span>
+                        <button type="button" class="delete-movement text-red-600 hover:text-red-700 text-sm" data-id="${data.movement.id}">Remove</button>
+                    `;
+                    movementsList.appendChild(div);
+                    attachDeleteHandler(div.querySelector('.delete-movement'));
+                    nameInput.value = '';
+                }
+            });
+        });
+
+        // Delete movement
+        function attachDeleteHandler(btn) {
+            btn.addEventListener('click', function() {
+                const movementId = this.dataset.id;
+                fetch(`/manage/repertoire/movements/${movementId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('.movement-item').remove();
+                    }
+                });
+            });
+        }
+
+        document.querySelectorAll('.delete-movement').forEach(attachDeleteHandler);
+    });
+    </script>
+    {% endif %}
 </div>
 {% endblock %}

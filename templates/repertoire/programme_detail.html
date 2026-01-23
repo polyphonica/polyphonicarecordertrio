@@ -52,6 +52,13 @@
                         {% if item.item_type == 'piece' and item.piece %}
                             <div class="font-medium text-primary-900">{{ item.piece.title }}</div>
                             <div class="text-sm text-primary-600">{{ item.piece.composer.name }}{% if item.piece.catalogue_number %} &bull; {{ item.piece.catalogue_number }}{% endif %}</div>
+                            {% if item.piece.movements.exists %}
+                            <div class="text-xs text-primary-500 mt-1 ml-2">
+                                {% for movement in item.piece.movements.all %}
+                                    {{ movement.name }}{% if not forloop.last %}<br>{% endif %}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         {% elif item.item_type == 'interval' %}
                             <div class="font-medium text-primary-500 italic">— Interval —</div>
                         {% else %}

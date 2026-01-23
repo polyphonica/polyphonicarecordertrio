@@ -22,6 +22,7 @@
                 <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Composer</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Duration</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Catalogue</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-primary-900">Movements</th>
                 <th class="px-6 py-3 text-right text-sm font-semibold text-primary-900">Actions</th>
             </tr>
         </thead>
@@ -32,6 +33,7 @@
                 <td class="px-6 py-4 text-primary-600">{{ piece.composer.name }}</td>
                 <td class="px-6 py-4 text-primary-600">{{ piece.duration_display }}</td>
                 <td class="px-6 py-4 text-primary-600">{{ piece.catalogue_number|default:"—" }}</td>
+                <td class="px-6 py-4 text-primary-600">{{ piece.movements.count|default:"—" }}</td>
                 <td class="px-6 py-4 text-right space-x-2">
                     <a href="{% url 'repertoire:piece_edit' piece.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
                     <a href="{% url 'repertoire:piece_delete' piece.pk %}" class="text-red-600 hover:text-red-700">Delete</a>

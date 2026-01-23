@@ -15,7 +15,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
-from .models import Composer, Piece, Programme, ProgrammeItem
+from .models import Composer, Piece, Movement, Programme, ProgrammeItem
 
 
 # =============================================================================
@@ -127,7 +127,7 @@ def composer_delete(request, pk):
 
 @staff_member_required
 def piece_list(request):
-    pieces = Piece.objects.select_related('composer').all()
+    pieces = Piece.objects.select_related('composer').prefetch_related('movements').all()
     return render(request, 'repertoire/piece_list.html', {'pieces': pieces})
 
 
@@ -169,6 +169,45 @@ def piece_delete(request, pk):
 
 
 # =============================================================================
+# Movement Views
+# =============================================================================
+
+@staff_member_required
+@require_POST
+def movement_add(request, pk):
+    """Add a movement to a piece."""
+    piece = get_object_or_404(Piece, pk=pk)
+    name = request.POST.get('name', '').strip()
+
+    if name:
+        # Get next order
+        max_order = piece.movements.aggregate(max_order=models.Max('order'))['max_order'] or 0
+        movement = Movement.objects.create(
+            piece=piece,
+            name=name,
+            order=max_order + 1
+        )
+        return JsonResponse({
+            'success': True,
+            'movement': {
+                'id': movement.id,
+                'name': movement.name,
+            }
+        })
+
+    return JsonResponse({'success': False, 'error': 'Name is required'})
+
+
+@staff_member_required
+@require_POST
+def movement_delete(request, pk):
+    """Delete a movement."""
+    movement = get_object_or_404(Movement, pk=pk)
+    movement.delete()
+    return JsonResponse({'success': True})
+
+
+# =============================================================================
 # Programme Views
 # =============================================================================
 
@@ -195,7 +234,7 @@ def programme_add(request):
 def programme_detail(request, pk):
     """Programme builder view with drag-drop interface."""
     programme = get_object_or_404(Programme, pk=pk)
-    items = programme.items.select_related('piece', 'piece__composer').all()
+    items = programme.items.select_related('piece', 'piece__composer').prefetch_related('piece__movements').all()
     pieces = Piece.objects.select_related('composer').all()
 
     return render(request, 'repertoire/programme_detail.html', {
@@ -452,6 +491,10 @@ def programme_pdf_performer(request, pk):
             if item.piece.catalogue_number:
                 title += f" ({item.piece.catalogue_number})"
             title += f"\n{item.piece.composer.name}"
+            # Add movements if any
+            if item.piece.movements.exists():
+                movements = [m.name for m in item.piece.movements.all()]
+                title += "\n" + ", ".join(movements)
         elif item.item_type == 'interval':
             title = "— INTERVAL —"
         else:
@@ -575,6 +618,17 @@ def programme_pdf_public(request, pk):
             if item.piece.catalogue_number:
                 piece_text += f", {item.piece.catalogue_number}"
             elements.append(Paragraph(piece_text, piece_style))
+
+            # Add movements if any
+            if item.piece.movements.exists():
+                for movement in item.piece.movements.all():
+                    elements.append(Paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;{movement.name}", ParagraphStyle(
+                        'Movement',
+                        parent=styles['Normal'],
+                        fontSize=10,
+                        leftIndent=10*mm,
+                        textColor=colors.grey,
+                    )))
         # Talks are not shown in public programme
 
     # Add performer info at bottom
