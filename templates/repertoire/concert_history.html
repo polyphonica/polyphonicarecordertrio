@@ -1,0 +1,44 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Concert History - Polyphonica{% endblock %}
+{% block page_title %}Concert History{% endblock %}
+{% block page_subtitle %}Chronological list of concerts and programmes{% endblock %}
+
+{% block staff_content %}
+<div class="bg-white rounded-lg shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Concert</th>
+                    <th class="px-6 py-3">Venue</th>
+                    <th class="px-6 py-3">Programme</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for concert in concerts %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4 text-sm text-primary-600 whitespace-nowrap">{{ concert.date|date:"j M Y" }}</td>
+                    <td class="px-6 py-4 text-primary-900">{{ concert.title }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ concert.venue_name }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        {% if concert.programme %}
+                        <a href="{% url 'repertoire:programme_detail' concert.programme.pk %}" class="text-accent-600 hover:text-accent-700 font-medium">
+                            {{ concert.programme.title }}
+                        </a>
+                        {% else %}
+                        <span class="text-primary-400">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-primary-500">No concerts found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -16,6 +16,7 @@ from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 from .models import Composer, Piece, Movement, Programme, ProgrammeItem
+from concerts.models import Concert
 
 
 # =============================================================================
@@ -72,6 +73,17 @@ class ProgrammeItemForm(forms.ModelForm):
             'talk_text': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg', 'rows': 4}),
             'notes': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg', 'rows': 2}),
         }
+
+
+# =============================================================================
+# Concert History View
+# =============================================================================
+
+@staff_member_required
+def concert_history(request):
+    """Chronological list of all concerts with their programmes."""
+    concerts = Concert.objects.select_related('programme').order_by('-date')
+    return render(request, 'repertoire/concert_history.html', {'concerts': concerts})
 
 
 # =============================================================================

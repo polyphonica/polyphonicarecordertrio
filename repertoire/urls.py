@@ -4,6 +4,9 @@ from . import views
 app_name = 'repertoire'
 
 urlpatterns = [
+    # Concert history (chronological list with programmes)
+    path('concerts/', views.concert_history, name='concert_history'),
+
     # Composers
     path('composers/', views.composer_list, name='composer_list'),
     path('composers/add/', views.composer_add, name='composer_add'),

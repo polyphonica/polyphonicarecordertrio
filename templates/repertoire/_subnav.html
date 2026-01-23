@@ -1,4 +1,7 @@
 <div class="mb-6 flex gap-4 text-sm">
+    <a href="{% url 'repertoire:concert_history' %}" class="{% if 'concert_history' in request.resolver_match.url_name %}text-accent-600 font-semibold{% else %}text-primary-600 hover:text-accent-600{% endif %}">
+        Concert History
+    </a>
     <a href="{% url 'repertoire:programme_list' %}" class="{% if 'programme' in request.resolver_match.url_name %}text-accent-600 font-semibold{% else %}text-primary-600 hover:text-accent-600{% endif %}">
         Programmes
     </a>
