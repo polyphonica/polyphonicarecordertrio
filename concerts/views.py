@@ -50,6 +50,14 @@ def order_tickets(request, slug):
     """Order tickets for a concert (guest checkout)."""
     concert = get_object_or_404(Concert, slug=slug, status='published')
 
+    # Staff cannot book concerts
+    if request.user.is_authenticated and request.user.is_staff:
+        messages.warning(
+            request,
+            'Staff cannot book workshops or concerts. If you are testing, log off and purchase as a customer.'
+        )
+        return redirect('concerts:detail', slug=slug)
+
     # Only allow internal ticket sales
     if concert.ticket_source != 'internal':
         messages.error(request, 'Tickets for this concert are not available here.')

@@ -60,6 +60,14 @@ def register(request, slug):
     """
     workshop = get_object_or_404(Workshop, slug=slug, status='published')
 
+    # Staff cannot book workshops
+    if request.user.is_authenticated and request.user.is_staff:
+        messages.warning(
+            request,
+            'Staff cannot book workshops or concerts. If you are testing, log off and purchase as a customer.'
+        )
+        return redirect('workshops:detail', slug=slug)
+
     # Check capacity
     if workshop.is_full:
         messages.error(request, 'Sorry, this workshop is fully booked.')
