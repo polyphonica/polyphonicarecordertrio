@@ -1,3 +1,7 @@
+import urllib.request
+import urllib.parse
+import json
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -5,6 +9,31 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from django.db import models
+
+
+def verify_recaptcha(token):
+    """Verify reCAPTCHA v3 token with Google."""
+    if not settings.RECAPTCHA_SECRET_KEY:
+        # If no secret key configured, skip verification (for development)
+        return True
+
+    try:
+        url = 'https://www.google.com/recaptcha/api/siteverify'
+        data = urllib.parse.urlencode({
+            'secret': settings.RECAPTCHA_SECRET_KEY,
+            'response': token,
+        }).encode()
+
+        req = urllib.request.Request(url, data=data)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode())
+
+        if result.get('success') and result.get('score', 0) >= settings.RECAPTCHA_SCORE_THRESHOLD:
+            return True
+        return False
+    except Exception:
+        # If verification fails, allow submission (fail open for usability)
+        return True
 
 
 def home(request):
@@ -45,6 +74,14 @@ def contact(request):
         email = request.POST.get('email', '').strip()
         subject = request.POST.get('subject', '').strip()
         message = request.POST.get('message', '').strip()
+        recaptcha_token = request.POST.get('g-recaptcha-response', '')
+
+        # Verify reCAPTCHA
+        if not verify_recaptcha(recaptcha_token):
+            messages.error(request, 'Spam verification failed. Please try again.')
+            return render(request, 'core/contact.html', {
+                'recaptcha_site_key': settings.RECAPTCHA_SITE_KEY,
+            })
 
         if name and email and message:
             # Send email
@@ -66,7 +103,9 @@ def contact(request):
         else:
             messages.error(request, 'Please fill in all required fields.')
 
-    return render(request, 'core/contact.html')
+    return render(request, 'core/contact.html', {
+        'recaptcha_site_key': settings.RECAPTCHA_SITE_KEY,
+    })
 
 
 @staff_member_required
