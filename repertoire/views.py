@@ -242,6 +242,7 @@ def programme_add_item(request, pk):
     item_type = request.POST.get('item_type')
     piece_id = request.POST.get('piece_id')
     title = request.POST.get('title', '')
+    speaker = request.POST.get('speaker', '')
     duration = request.POST.get('duration')
     talk_text = request.POST.get('talk_text', '')
 
@@ -258,6 +259,7 @@ def programme_add_item(request, pk):
         item.piece_id = piece_id
     else:
         item.title = title
+        item.speaker = speaker
         item.custom_duration = int(duration) if duration else None
         item.talk_text = talk_text
 
@@ -310,6 +312,7 @@ def programme_item_edit(request, pk):
                 item.piece_id = piece_id
         else:
             item.title = request.POST.get('title', '')
+            item.speaker = request.POST.get('speaker', '')
             duration = request.POST.get('duration')
             item.custom_duration = int(duration) if duration else None
             item.talk_text = request.POST.get('talk_text', '')
@@ -453,6 +456,8 @@ def programme_pdf_performer(request, pk):
             title = "— INTERVAL —"
         else:
             title = item.title or "Talk"
+            if item.speaker:
+                title += f"\n{item.speaker}"
 
         running_time += duration
         running_mins = running_time
@@ -489,7 +494,10 @@ def programme_pdf_performer(request, pk):
         elements.append(Spacer(1, 10*mm))
         elements.append(Paragraph("TALK NOTES", styles['Heading2']))
         for item in talks:
-            elements.append(Paragraph(f"<b>{item.title or 'Talk'}</b>", item_style))
+            talk_header = item.title or 'Talk'
+            if item.speaker:
+                talk_header += f" — {item.speaker}"
+            elements.append(Paragraph(f"<b>{talk_header}</b>", item_style))
             elements.append(Paragraph(item.talk_text, talk_style))
 
     doc.build(elements)

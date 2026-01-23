@@ -178,6 +178,11 @@ class ProgrammeItem(models.Model):
         blank=True,
         help_text="Title for talk or interval (e.g., 'Introduction', 'Interval')"
     )
+    speaker = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Name of the person giving the talk"
+    )
     talk_text = models.TextField(
         blank=True,
         help_text="Text/notes for what to say during the talk"

@@ -56,7 +56,7 @@
                             <div class="font-medium text-primary-500 italic">— Interval —</div>
                         {% else %}
                             <div class="font-medium text-primary-900">{{ item.title|default:"Talk" }}</div>
-                            <div class="text-sm text-primary-500">Talk</div>
+                            <div class="text-sm text-primary-500">Talk{% if item.speaker %} &bull; {{ item.speaker }}{% endif %}</div>
                         {% endif %}
                     </div>
 
@@ -109,6 +109,9 @@
             <form id="add-talk-form" class="space-y-4">
                 <div>
                     <input type="text" name="title" placeholder="e.g., Introduction" class="w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500">
+                </div>
+                <div>
+                    <input type="text" name="speaker" placeholder="Speaker name" class="w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500">
                 </div>
                 <div>
                     <input type="number" name="duration" placeholder="Duration (minutes)" class="w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500">
@@ -243,6 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('item_type', 'talk');
         formData.append('title', this.querySelector('[name="title"]').value);
+        formData.append('speaker', this.querySelector('[name="speaker"]').value);
         formData.append('duration', this.querySelector('[name="duration"]').value);
         formData.append('talk_text', this.querySelector('[name="talk_text"]').value);
 
