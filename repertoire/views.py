@@ -23,55 +23,50 @@ from concerts.models import Concert
 # Forms
 # =============================================================================
 
-class ComposerForm(forms.ModelForm):
+from core.forms import StyledFormMixin
+
+
+class ComposerForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Composer
         fields = ['name', 'birth_year', 'death_year', 'nationality', 'bio']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500'}),
-            'birth_year': forms.NumberInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'placeholder': 'e.g., 1685'}),
-            'death_year': forms.NumberInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'placeholder': 'e.g., 1750'}),
-            'nationality': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'placeholder': 'e.g., German'}),
-            'bio': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'rows': 4}),
+            'birth_year': forms.NumberInput(attrs={'placeholder': 'e.g., 1685'}),
+            'death_year': forms.NumberInput(attrs={'placeholder': 'e.g., 1750'}),
+            'nationality': forms.TextInput(attrs={'placeholder': 'e.g., German'}),
+            'bio': forms.Textarea(attrs={'rows': 4}),
         }
 
 
-class PieceForm(forms.ModelForm):
+class PieceForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Piece
         fields = ['title', 'composer', 'duration', 'catalogue_number', 'instrumentation', 'notes']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500'}),
-            'composer': forms.Select(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500'}),
-            'duration': forms.NumberInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'placeholder': 'Minutes'}),
-            'catalogue_number': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'placeholder': 'e.g., BWV 1079'}),
-            'instrumentation': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500'}),
-            'notes': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'rows': 4}),
+            'duration': forms.NumberInput(attrs={'placeholder': 'Minutes'}),
+            'catalogue_number': forms.TextInput(attrs={'placeholder': 'e.g., BWV 1079'}),
+            'notes': forms.Textarea(attrs={'rows': 4}),
         }
 
 
-class ProgrammeForm(forms.ModelForm):
+class ProgrammeForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Programme
         fields = ['title', 'status', 'notes']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500'}),
-            'status': forms.Select(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500'}),
-            'notes': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500', 'rows': 3}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
 
-class ProgrammeItemForm(forms.ModelForm):
+class ProgrammeItemForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = ProgrammeItem
         fields = ['item_type', 'piece', 'title', 'custom_duration', 'talk_text', 'notes']
         widgets = {
-            'item_type': forms.Select(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg'}),
-            'piece': forms.Select(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg'}),
-            'title': forms.TextInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg', 'placeholder': 'e.g., Introduction, Interval'}),
-            'custom_duration': forms.NumberInput(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg', 'placeholder': 'Minutes'}),
-            'talk_text': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg', 'rows': 4}),
-            'notes': forms.Textarea(attrs={'class': 'w-full px-3 py-2 border border-primary-300 rounded-lg', 'rows': 2}),
+            'title': forms.TextInput(attrs={'placeholder': 'e.g., Introduction, Interval'}),
+            'custom_duration': forms.NumberInput(attrs={'placeholder': 'Minutes'}),
+            'talk_text': forms.Textarea(attrs={'rows': 4}),
+            'notes': forms.Textarea(attrs={'rows': 2}),
         }
 
 

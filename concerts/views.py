@@ -258,23 +258,11 @@ def checkout_cancel(request, slug):
 @require_POST
 def stripe_webhook(request):
     """Handle Stripe webhooks for concert payment confirmation."""
-    payload = request.body
-    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    from core.stripe_utils import verify_webhook
 
-    if settings.STRIPE_WEBHOOK_SECRET:
-        try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-            )
-        except ValueError:
-            return HttpResponse(status=400)
-        except stripe.error.SignatureVerificationError:
-            return HttpResponse(status=400)
-    else:
-        try:
-            event = json.loads(payload)
-        except json.JSONDecodeError:
-            return HttpResponse(status=400)
+    event, error_response = verify_webhook(request)
+    if error_response:
+        return error_response
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
