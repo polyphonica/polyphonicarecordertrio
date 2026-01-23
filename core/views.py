@@ -28,6 +28,16 @@ def home(request):
     return render(request, 'core/home.html', context)
 
 
+def privacy(request):
+    """Privacy policy page."""
+    return render(request, 'core/privacy.html')
+
+
+def accessibility(request):
+    """Accessibility statement page."""
+    return render(request, 'core/accessibility.html')
+
+
 def contact(request):
     """Contact page with contact form."""
     if request.method == 'POST':
