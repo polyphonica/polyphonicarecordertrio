@@ -2,16 +2,17 @@
 
 {% block title %}Piece Library - Polyphonica{% endblock %}
 
-{% block staff_title %}Piece Library{% endblock %}
-{% block staff_subtitle %}Manage your repertoire{% endblock %}
+{% block page_title %}Piece Library{% endblock %}
+{% block page_subtitle %}Manage your repertoire{% endblock %}
 
-{% block staff_actions %}
+{% block page_actions %}
 <a href="{% url 'repertoire:piece_add' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors">
     Add Piece
 </a>
 {% endblock %}
 
 {% block staff_content %}
+{% include 'repertoire/_subnav.html' %}
 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
     {% if pieces %}
     <table class="w-full">

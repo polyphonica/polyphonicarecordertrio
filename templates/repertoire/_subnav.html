@@ -1,0 +1,11 @@
+<div class="mb-6 flex gap-4 text-sm">
+    <a href="{% url 'repertoire:programme_list' %}" class="{% if 'programme' in request.resolver_match.url_name %}text-accent-600 font-semibold{% else %}text-primary-600 hover:text-accent-600{% endif %}">
+        Programmes
+    </a>
+    <a href="{% url 'repertoire:piece_list' %}" class="{% if 'piece' in request.resolver_match.url_name %}text-accent-600 font-semibold{% else %}text-primary-600 hover:text-accent-600{% endif %}">
+        Pieces
+    </a>
+    <a href="{% url 'repertoire:composer_list' %}" class="{% if 'composer' in request.resolver_match.url_name %}text-accent-600 font-semibold{% else %}text-primary-600 hover:text-accent-600{% endif %}">
+        Composers
+    </a>
+</div>

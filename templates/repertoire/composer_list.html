@@ -2,16 +2,17 @@
 
 {% block title %}Composers - Polyphonica{% endblock %}
 
-{% block staff_title %}Composers{% endblock %}
-{% block staff_subtitle %}Manage your composer library{% endblock %}
+{% block page_title %}Composers{% endblock %}
+{% block page_subtitle %}Manage your composer library{% endblock %}
 
-{% block staff_actions %}
+{% block page_actions %}
 <a href="{% url 'repertoire:composer_add' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white rounded-lg font-medium transition-colors">
     Add Composer
 </a>
 {% endblock %}
 
 {% block staff_content %}
+{% include 'repertoire/_subnav.html' %}
 <div class="bg-white rounded-xl shadow-sm overflow-hidden">
     {% if composers %}
     <table class="w-full">
