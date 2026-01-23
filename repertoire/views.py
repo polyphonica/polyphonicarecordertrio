@@ -1,6 +1,7 @@
 import json
 from io import BytesIO
 
+from django.db import models
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
@@ -584,7 +585,3 @@ def programme_pdf_public(request, pk):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{programme.title} - Programme.pdf"'
     return response
-
-
-# Need to import models for Q lookups
-from django.db import models
