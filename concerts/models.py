@@ -39,6 +39,16 @@ class Concert(models.Model):
     # Image
     image = models.ImageField(upload_to='concerts/', blank=True, null=True)
 
+    # Programme
+    programme = models.ForeignKey(
+        'repertoire.Programme',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='concerts',
+        help_text="Link to the repertoire programme for this concert"
+    )
+
     # Tickets
     ticket_source = models.CharField(max_length=20, choices=TICKET_SOURCE_CHOICES, default='external')
     external_ticket_url = models.URLField(blank=True, help_text="Link to external ticket seller")

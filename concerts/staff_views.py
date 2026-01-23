@@ -17,6 +17,7 @@ class ConcertForm(forms.ModelForm):
             'date', 'time', 'doors_open',
             'venue_name', 'venue_address', 'venue_postcode', 'venue_map_link',
             'image',
+            'programme',
             'ticket_source', 'external_ticket_url',
             'full_price', 'discount_price', 'discount_label',
             'capacity',
