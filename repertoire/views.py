@@ -245,7 +245,10 @@ def programme_add(request):
 @staff_member_required
 def programme_detail(request, pk):
     """Programme builder view with drag-drop interface."""
-    programme = get_object_or_404(Programme, pk=pk)
+    programme = get_object_or_404(
+        Programme.objects.prefetch_related('concerts'),
+        pk=pk
+    )
     items = programme.items.select_related('piece', 'piece__composer').prefetch_related('piece__movements').all()
     pieces = Piece.objects.select_related('composer').all()
 

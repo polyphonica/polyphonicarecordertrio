@@ -27,7 +27,7 @@ class Workshop(models.Model):
     short_description = models.CharField(max_length=300, blank=True, help_text="Brief summary for listings")
 
     # Date and time
-    date = models.DateField()
+    date = models.DateField(db_index=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
 
@@ -62,7 +62,7 @@ class Workshop(models.Model):
     current_registrations = models.PositiveIntegerField(default=0)
 
     # Status
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', db_index=True)
 
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
@@ -70,6 +70,9 @@ class Workshop(models.Model):
 
     class Meta:
         ordering = ['date', 'start_time']
+        indexes = [
+            models.Index(fields=['status', 'date'], name='workshop_status_date_idx'),
+        ]
 
     def __str__(self):
         return f"{self.title} - {self.date}"
@@ -130,7 +133,7 @@ class WorkshopRegistration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='workshop_registrations')
 
     # Registration details
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     phone = models.CharField(max_length=30, blank=True)
     special_requirements = models.TextField(blank=True, help_text="Dietary, accessibility, etc.")
 

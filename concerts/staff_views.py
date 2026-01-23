@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
+from django.db.models import Sum
 from django.utils import timezone
 from django import forms
 
@@ -100,12 +101,17 @@ def concert_orders(request, pk):
     if status_filter:
         orders = orders.filter(status=status_filter)
 
+    # Use database aggregation instead of Python sum
+    total_tickets = ConcertTicketOrder.objects.filter(
+        concert=concert, status='paid'
+    ).aggregate(total=Sum('quantity'))['total'] or 0
+
     context = {
         'concert': concert,
         'orders': orders,
         'status_filter': status_filter,
         'status_choices': ConcertTicketOrder.STATUS_CHOICES,
-        'total_tickets': sum(o.quantity for o in orders.filter(status='paid')),
+        'total_tickets': total_tickets,
     }
     return render(request, 'concerts/staff/concert_orders.html', context)
 

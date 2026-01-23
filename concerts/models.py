@@ -26,7 +26,7 @@ class Concert(models.Model):
     description = models.TextField()
 
     # Date and time
-    date = models.DateField()
+    date = models.DateField(db_index=True)
     time = models.TimeField()
     doors_open = models.TimeField(blank=True, null=True, help_text="When doors open (optional)")
 
@@ -67,7 +67,7 @@ class Concert(models.Model):
     tickets_sold = models.PositiveIntegerField(default=0)
 
     # Status
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', db_index=True)
 
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
@@ -75,6 +75,9 @@ class Concert(models.Model):
 
     class Meta:
         ordering = ['date', 'time']
+        indexes = [
+            models.Index(fields=['status', 'date'], name='concert_status_date_idx'),
+        ]
 
     def __str__(self):
         return f"{self.title} - {self.date}"
@@ -146,7 +149,7 @@ class ConcertTicketOrder(models.Model):
     total_price = models.DecimalField(max_digits=8, decimal_places=2)
 
     # Payment
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True)
     stripe_checkout_session_id = models.CharField(max_length=255, blank=True)
     paid_at = models.DateTimeField(null=True, blank=True)

@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Case, F, Sum, Value, When
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 
 
@@ -144,11 +146,16 @@ class Programme(models.Model):
 
     @property
     def total_duration(self):
-        """Calculate total programme duration in minutes."""
-        total = 0
-        for item in self.items.all():
-            total += item.duration or 0
-        return total
+        """Calculate total programme duration in minutes using database aggregation."""
+        result = self.items.aggregate(
+            total=Sum(
+                Case(
+                    When(item_type='piece', then=F('piece__duration')),
+                    default=Coalesce(F('custom_duration'), Value(0))
+                )
+            )
+        )
+        return result['total'] or 0
 
     @property
     def total_duration_display(self):
