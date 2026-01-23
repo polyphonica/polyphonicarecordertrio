@@ -11,16 +11,16 @@ from django.utils import timezone
 from django.db import models
 
 
-def verify_recaptcha(token):
-    """Verify reCAPTCHA v3 token with Google."""
-    if not settings.RECAPTCHA_SECRET_KEY:
+def verify_turnstile(token):
+    """Verify Cloudflare Turnstile token."""
+    if not settings.TURNSTILE_SECRET_KEY:
         # If no secret key configured, skip verification (for development)
         return True
 
     try:
-        url = 'https://www.google.com/recaptcha/api/siteverify'
+        url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
         data = urllib.parse.urlencode({
-            'secret': settings.RECAPTCHA_SECRET_KEY,
+            'secret': settings.TURNSTILE_SECRET_KEY,
             'response': token,
         }).encode()
 
@@ -28,9 +28,7 @@ def verify_recaptcha(token):
         with urllib.request.urlopen(req, timeout=10) as response:
             result = json.loads(response.read().decode())
 
-        if result.get('success') and result.get('score', 0) >= settings.RECAPTCHA_SCORE_THRESHOLD:
-            return True
-        return False
+        return result.get('success', False)
     except Exception:
         # If verification fails, allow submission (fail open for usability)
         return True
@@ -74,13 +72,13 @@ def contact(request):
         email = request.POST.get('email', '').strip()
         subject = request.POST.get('subject', '').strip()
         message = request.POST.get('message', '').strip()
-        recaptcha_token = request.POST.get('g-recaptcha-response', '')
+        turnstile_token = request.POST.get('cf-turnstile-response', '')
 
-        # Verify reCAPTCHA
-        if not verify_recaptcha(recaptcha_token):
+        # Verify Turnstile
+        if not verify_turnstile(turnstile_token):
             messages.error(request, 'Spam verification failed. Please try again.')
             return render(request, 'core/contact.html', {
-                'recaptcha_site_key': settings.RECAPTCHA_SITE_KEY,
+                'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
             })
 
         if name and email and message:
@@ -104,7 +102,7 @@ def contact(request):
             messages.error(request, 'Please fill in all required fields.')
 
     return render(request, 'core/contact.html', {
-        'recaptcha_site_key': settings.RECAPTCHA_SITE_KEY,
+        'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
     })
 
 

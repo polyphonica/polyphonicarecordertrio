@@ -151,7 +151,6 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Polyphonica Recorder Trio 
 # Contact form recipient
 CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'info@polyphonicarecordertrio.com')
 
-# reCAPTCHA v3 (invisible)
-RECAPTCHA_SITE_KEY = os.getenv('RECAPTCHA_SITE_KEY', '')
-RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '')
-RECAPTCHA_SCORE_THRESHOLD = float(os.getenv('RECAPTCHA_SCORE_THRESHOLD', '0.5'))
+# Cloudflare Turnstile (spam protection)
+TURNSTILE_SITE_KEY = os.getenv('TURNSTILE_SITE_KEY', '')
+TURNSTILE_SECRET_KEY = os.getenv('TURNSTILE_SECRET_KEY', '')
