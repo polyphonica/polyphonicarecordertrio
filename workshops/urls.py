@@ -17,6 +17,7 @@ urlpatterns = [
     path('manage/<int:pk>/attendees/', staff_views.workshop_attendees, name='staff_workshop_attendees'),
     path('manage/<int:pk>/attendees/pdf/', staff_views.workshop_attendees_pdf, name='staff_workshop_attendees_pdf'),
     path('manage/<int:pk>/attendees/email/', staff_views.workshop_email_attendees, name='staff_workshop_email'),
+    path('manage/<int:pk>/materials/<int:material_pk>/delete/', staff_views.workshop_material_delete, name='staff_material_delete'),
 
     path('<slug:slug>/', views.detail, name='detail'),
     path('<slug:slug>/register/', views.register, name='register'),

@@ -14,7 +14,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
-from .models import Workshop, WorkshopRegistration, WorkshopTerms
+from .models import Workshop, WorkshopRegistration, WorkshopTerms, WorkshopMaterial
 
 
 class WorkshopForm(forms.ModelForm):
@@ -42,6 +42,17 @@ class WorkshopForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'start_time': forms.TimeInput(attrs={'type': 'time'}),
             'end_time': forms.TimeInput(attrs={'type': 'time'}),
+        }
+
+
+class WorkshopMaterialForm(forms.ModelForm):
+    """Form for uploading workshop materials."""
+
+    class Meta:
+        model = WorkshopMaterial
+        fields = ['title', 'description', 'file']
+        widgets = {
+            'description': forms.TextInput(attrs={'placeholder': 'Brief description (optional)'}),
         }
 
 
@@ -84,19 +95,46 @@ def workshop_edit(request, pk):
 
     if request.method == 'POST':
         form = WorkshopForm(request.POST, request.FILES, instance=workshop)
-        if form.is_valid():
+        material_form = WorkshopMaterialForm(request.POST, request.FILES)
+
+        # Check if this is a material upload
+        if 'upload_material' in request.POST:
+            if material_form.is_valid():
+                material = material_form.save(commit=False)
+                material.workshop = workshop
+                material.save()
+                messages.success(request, f'Material "{material.title}" uploaded successfully.')
+                return redirect('workshops:staff_workshop_edit', pk=pk)
+        elif form.is_valid():
             form.save()
             messages.success(request, f'Workshop "{workshop.title}" updated successfully.')
             return redirect('workshops:staff_workshop_list')
     else:
         form = WorkshopForm(instance=workshop)
+        material_form = WorkshopMaterialForm()
 
     context = {
         'form': form,
+        'material_form': material_form,
         'workshop': workshop,
         'action': 'Edit',
     }
     return render(request, 'workshops/staff/workshop_form.html', context)
+
+
+@staff_member_required
+def workshop_material_delete(request, pk, material_pk):
+    """Delete a workshop material."""
+    workshop = get_object_or_404(Workshop, pk=pk)
+    material = get_object_or_404(WorkshopMaterial, pk=material_pk, workshop=workshop)
+
+    if request.method == 'POST':
+        title = material.title
+        material.file.delete()  # Delete the file from storage
+        material.delete()
+        messages.success(request, f'Material "{title}" deleted.')
+
+    return redirect('workshops:staff_workshop_edit', pk=pk)
 
 
 @staff_member_required
