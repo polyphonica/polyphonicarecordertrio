@@ -151,7 +151,7 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Polyphonica Recorder Trio <noreply@polyphonicarecordertrio.com>')
 
 # Contact form recipient
-CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'info@polyphonicarecordertrio.com')
+CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', 'polyphonicatrio@gmail.com')
 
 # Cloudflare Turnstile (spam protection)
 TURNSTILE_SITE_KEY = os.getenv('TURNSTILE_SITE_KEY', '')
