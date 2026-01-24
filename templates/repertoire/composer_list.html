@@ -29,13 +29,7 @@
             {% for composer in composers %}
             <tr class="hover:bg-primary-50">
                 <td class="px-6 py-4 font-medium text-primary-900">{{ composer.name }}</td>
-                <td class="px-6 py-4 text-primary-600">
-                    {% if composer.birth_year %}
-                        {{ composer.birth_year }}{% if composer.death_year %}–{{ composer.death_year }}{% endif %}
-                    {% else %}
-                        —
-                    {% endif %}
-                </td>
+                <td class="px-6 py-4 text-primary-600">{{ composer.dates_range|default:"—" }}</td>
                 <td class="px-6 py-4 text-primary-600">{{ composer.nationality|default:"—" }}</td>
                 <td class="px-6 py-4 text-primary-600">{{ composer.pieces.count }}</td>
                 <td class="px-6 py-4 text-right space-x-2">

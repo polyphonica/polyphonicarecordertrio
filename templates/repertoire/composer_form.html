@@ -19,11 +19,17 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="id_birth_year" class="block text-sm font-medium text-primary-700 mb-2">Birth Year</label>
-                    {{ form.birth_year }}
+                    <div class="flex gap-2">
+                        {{ form.birth_year_qualifier }}
+                        {{ form.birth_year }}
+                    </div>
                 </div>
                 <div>
                     <label for="id_death_year" class="block text-sm font-medium text-primary-700 mb-2">Death Year</label>
-                    {{ form.death_year }}
+                    <div class="flex gap-2">
+                        {{ form.death_year_qualifier }}
+                        {{ form.death_year }}
+                    </div>
                 </div>
             </div>
 

@@ -6,8 +6,21 @@ from django.urls import reverse
 
 class Composer(models.Model):
     """Composer in the repertoire library."""
+    YEAR_QUALIFIER_CHOICES = [
+        ('', '—'),
+        ('c.', 'c.'),
+        ('after', 'after'),
+        ('before', 'before'),
+    ]
+
     name = models.CharField(max_length=200)
+    birth_year_qualifier = models.CharField(
+        max_length=10, blank=True, choices=YEAR_QUALIFIER_CHOICES
+    )
     birth_year = models.PositiveIntegerField(null=True, blank=True)
+    death_year_qualifier = models.CharField(
+        max_length=10, blank=True, choices=YEAR_QUALIFIER_CHOICES
+    )
     death_year = models.PositiveIntegerField(null=True, blank=True)
     nationality = models.CharField(max_length=100, blank=True)
     bio = models.TextField(blank=True, help_text="Biography for programme notes")
@@ -21,22 +34,48 @@ class Composer(models.Model):
     def __str__(self):
         return self.display_name
 
+    def _format_year(self, qualifier, year):
+        """Format a year with its qualifier."""
+        if not year:
+            return ""
+        if qualifier:
+            # 'c.' has no space, 'after' and 'before' have a space
+            if qualifier == 'c.':
+                return f"{qualifier}{year}"
+            return f"{qualifier} {year}"
+        return str(year)
+
     @property
     def display_name(self):
         """Name with dates if available."""
-        if self.birth_year and self.death_year:
-            return f"{self.name} ({self.birth_year}–{self.death_year})"
-        elif self.birth_year:
-            return f"{self.name} (b. {self.birth_year})"
+        birth = self._format_year(self.birth_year_qualifier, self.birth_year)
+        death = self._format_year(self.death_year_qualifier, self.death_year)
+        if birth and death:
+            return f"{self.name} ({birth}–{death})"
+        elif birth:
+            return f"{self.name} (b. {birth})"
         return self.name
+
+    @property
+    def dates_range(self):
+        """Just the date range without parentheses, for list display."""
+        birth = self._format_year(self.birth_year_qualifier, self.birth_year)
+        death = self._format_year(self.death_year_qualifier, self.death_year)
+        if birth and death:
+            return f"{birth}–{death}"
+        elif birth:
+            return birth
+        return ""
 
     @property
     def dates_display(self):
         """Just the dates for display."""
-        if self.birth_year and self.death_year:
-            return f"({self.birth_year}–{self.death_year})"
-        elif self.birth_year:
-            return f"(b. {self.birth_year})"
+        birth = self._format_year(self.birth_year_qualifier, self.birth_year)
+        death = self._format_year(self.death_year_qualifier, self.death_year)
+        if birth and death:
+            return f"({birth}–{death})"
+        elif birth:
+            return f"(b. {birth})"
         return ""
 
 

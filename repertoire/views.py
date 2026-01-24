@@ -29,7 +29,10 @@ from core.forms import StyledFormMixin
 class ComposerForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Composer
-        fields = ['name', 'birth_year', 'death_year', 'nationality', 'bio']
+        fields = [
+            'name', 'birth_year_qualifier', 'birth_year',
+            'death_year_qualifier', 'death_year', 'nationality', 'bio'
+        ]
         widgets = {
             'birth_year': forms.NumberInput(attrs={'placeholder': 'e.g., 1685'}),
             'death_year': forms.NumberInput(attrs={'placeholder': 'e.g., 1750'}),
