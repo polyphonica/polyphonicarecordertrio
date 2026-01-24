@@ -11,6 +11,7 @@ class Composer(models.Model):
         ('c.', 'c.'),
         ('after', 'after'),
         ('before', 'before'),
+        ('fl.', 'fl.'),
     ]
 
     name = models.CharField(max_length=200)
@@ -22,6 +23,10 @@ class Composer(models.Model):
         max_length=10, blank=True, choices=YEAR_QUALIFIER_CHOICES
     )
     death_year = models.PositiveIntegerField(null=True, blank=True)
+    dates_override = models.CharField(
+        max_length=100, blank=True,
+        help_text="Override computed dates, e.g. 'fl. late 14th century'"
+    )
     nationality = models.CharField(max_length=100, blank=True)
     bio = models.TextField(blank=True, help_text="Biography for programme notes")
 
@@ -48,6 +53,8 @@ class Composer(models.Model):
     @property
     def display_name(self):
         """Name with dates if available."""
+        if self.dates_override:
+            return f"{self.name} ({self.dates_override})"
         birth = self._format_year(self.birth_year_qualifier, self.birth_year)
         death = self._format_year(self.death_year_qualifier, self.death_year)
         if birth and death:
@@ -59,6 +66,8 @@ class Composer(models.Model):
     @property
     def dates_range(self):
         """Just the date range without parentheses, for list display."""
+        if self.dates_override:
+            return self.dates_override
         birth = self._format_year(self.birth_year_qualifier, self.birth_year)
         death = self._format_year(self.death_year_qualifier, self.death_year)
         if birth and death:
@@ -70,6 +79,8 @@ class Composer(models.Model):
     @property
     def dates_display(self):
         """Just the dates for display."""
+        if self.dates_override:
+            return f"({self.dates_override})"
         birth = self._format_year(self.birth_year_qualifier, self.birth_year)
         death = self._format_year(self.death_year_qualifier, self.death_year)
         if birth and death:

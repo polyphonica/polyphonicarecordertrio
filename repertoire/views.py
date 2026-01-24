@@ -31,7 +31,8 @@ class ComposerForm(StyledFormMixin, forms.ModelForm):
         model = Composer
         fields = [
             'name', 'birth_year_qualifier', 'birth_year',
-            'death_year_qualifier', 'death_year', 'nationality', 'bio'
+            'death_year_qualifier', 'death_year', 'dates_override',
+            'nationality', 'bio'
         ]
         widgets = {
             'birth_year': forms.NumberInput(attrs={'placeholder': 'e.g., 1685'}),
