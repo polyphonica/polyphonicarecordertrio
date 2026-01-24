@@ -57,6 +57,7 @@ class WorkshopRegistrationForm(forms.Form):
             # Hide these fields for online-only workshops
             del self.fields['emergency_contact']
             del self.fields['instruments']
+            del self.fields['special_requirements']
 
     def clean_email(self):
         email = self.cleaned_data['email']
