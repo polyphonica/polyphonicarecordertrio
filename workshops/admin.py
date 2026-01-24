@@ -21,7 +21,8 @@ class WorkshopAdmin(admin.ModelAdmin):
             'fields': ('title', 'slug', 'description', 'short_description', 'image')
         }),
         ('Date & Time', {
-            'fields': ('date', 'start_time', 'end_time', 'duration_hours')
+            'fields': ('date', 'start_time', 'end_time', 'duration_hours'),
+            'description': 'Duration is calculated automatically from start and end times.'
         }),
         ('Delivery', {
             'fields': ('delivery_method',)
@@ -46,7 +47,7 @@ class WorkshopAdmin(admin.ModelAdmin):
         }),
     )
 
-    readonly_fields = ['current_registrations']
+    readonly_fields = ['current_registrations', 'duration_hours']
 
 
 @admin.register(WorkshopRegistration)

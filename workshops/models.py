@@ -87,6 +87,16 @@ class Workshop(models.Model):
                 counter += 1
             self.slug = slug
 
+        # Calculate duration from start and end times
+        if self.start_time and self.end_time:
+            from datetime import datetime, timedelta
+            start = datetime.combine(datetime.min, self.start_time)
+            end = datetime.combine(datetime.min, self.end_time)
+            if end < start:
+                end += timedelta(days=1)  # Handle workshops crossing midnight
+            duration = (end - start).total_seconds() / 3600
+            self.duration_hours = round(duration * 2) / 2  # Round to nearest 0.5
+
         # Resize image on upload for consistent quality
         process_uploaded_image(self, 'image', max_width=1200, max_height=800)
 

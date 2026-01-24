@@ -24,7 +24,7 @@ class WorkshopForm(forms.ModelForm):
         model = Workshop
         fields = [
             'title', 'description', 'short_description',
-            'date', 'start_time', 'end_time', 'duration_hours',
+            'date', 'start_time', 'end_time',
             'delivery_method',
             'venue_name', 'venue_address', 'venue_postcode', 'venue_map_link',
             'meeting_link', 'meeting_password',
