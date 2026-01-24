@@ -34,7 +34,7 @@ def profile(request):
 
     registrations = WorkshopRegistration.objects.filter(
         user=request.user
-    ).select_related('workshop').order_by('-created_at')
+    ).select_related('workshop').prefetch_related('workshop__materials').order_by('-created_at')
 
     context = {
         'registrations': registrations,
