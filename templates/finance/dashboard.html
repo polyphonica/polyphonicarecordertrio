@@ -1,0 +1,234 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Finance Dashboard - Polyphonica{% endblock %}
+{% block page_title %}Finance{% endblock %}
+{% block page_subtitle %}Financial overview and reporting{% endblock %}
+
+{% block page_actions %}
+<div class="flex space-x-2">
+    <a href="{% url 'finance:expense_create' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+        + Add Expense
+    </a>
+    <a href="{% url 'finance:export_csv' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}"
+       class="px-4 py-2 border border-primary-300 text-primary-700 font-medium rounded-lg hover:bg-primary-50 transition-colors">
+        Export CSV
+    </a>
+</div>
+{% endblock %}
+
+{% block staff_content %}
+<!-- Date Range Filter -->
+<div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <form method="get" class="flex flex-wrap gap-4 items-end">
+        <div>
+            <label class="block text-sm font-medium text-primary-700 mb-1">Start Date</label>
+            <input type="date" name="start_date" value="{{ start_date|date:'Y-m-d' }}"
+                   class="px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-primary-700 mb-1">End Date</label>
+            <input type="date" name="end_date" value="{{ end_date|date:'Y-m-d' }}"
+                   class="px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+        </div>
+        <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
+            Update
+        </button>
+    </form>
+    <p class="text-sm text-primary-500 mt-2">Showing: Tax Year {{ tax_year_label }} ({{ start_date|date:"j M Y" }} - {{ end_date|date:"j M Y" }})</p>
+</div>
+
+<!-- Unsynced Warning -->
+{% if unsynced.total > 0 %}
+<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+    <div class="flex items-start">
+        <svg class="w-5 h-5 text-amber-600 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <div>
+            <p class="font-medium text-amber-800">{{ unsynced.total }} payment{{ unsynced.total|pluralize }} pending Stripe fee sync</p>
+            <p class="text-sm text-amber-700 mt-1">
+                Run <code class="bg-amber-100 px-1 rounded">python manage.py sync_stripe_fees</code> to import fee data from Stripe.
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold text-green-600">&pound;{{ summary.income.total_gross|floatformat:2 }}</div>
+        <div class="text-sm text-primary-600">Gross Income</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold text-orange-600">&pound;{{ summary.income.total_fees|floatformat:2 }}</div>
+        <div class="text-sm text-primary-600">Stripe Fees</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold text-red-600">&pound;{{ summary.expenses.total|floatformat:2 }}</div>
+        <div class="text-sm text-primary-600">Expenses</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-3xl font-bold {% if summary.net_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+            &pound;{{ summary.net_profit|floatformat:2 }}
+        </div>
+        <div class="text-sm text-primary-600">Net Profit</div>
+    </div>
+</div>
+
+<!-- Income and Expense Breakdown -->
+<div class="grid lg:grid-cols-2 gap-8 mb-8">
+    <!-- Income Breakdown -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100">
+            <h2 class="font-semibold text-primary-900">Income Breakdown</h2>
+        </div>
+        <div class="p-6">
+            <table class="w-full text-sm">
+                <thead class="text-left text-primary-500">
+                    <tr>
+                        <th class="pb-2">Source</th>
+                        <th class="pb-2 text-right">Gross</th>
+                        <th class="pb-2 text-right">Fees</th>
+                        <th class="pb-2 text-right">Net</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-primary-100">
+                        <td class="py-2 text-primary-700">Workshops ({{ summary.income.workshop_count }})</td>
+                        <td class="py-2 text-right">&pound;{{ summary.income.workshop_gross|floatformat:2 }}</td>
+                        <td class="py-2 text-right text-orange-600">-&pound;{{ summary.income.workshop_fees|floatformat:2 }}</td>
+                        <td class="py-2 text-right font-medium">&pound;{{ summary.income.workshop_net|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="border-b border-primary-100">
+                        <td class="py-2 text-primary-700">Concerts ({{ summary.income.concert_count }})</td>
+                        <td class="py-2 text-right">&pound;{{ summary.income.concert_gross|floatformat:2 }}</td>
+                        <td class="py-2 text-right text-orange-600">-&pound;{{ summary.income.concert_fees|floatformat:2 }}</td>
+                        <td class="py-2 text-right font-medium">&pound;{{ summary.income.concert_net|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="font-semibold">
+                        <td class="py-2">Total</td>
+                        <td class="py-2 text-right">&pound;{{ summary.income.total_gross|floatformat:2 }}</td>
+                        <td class="py-2 text-right text-orange-600">-&pound;{{ summary.income.total_fees|floatformat:2 }}</td>
+                        <td class="py-2 text-right">&pound;{{ summary.income.total_net|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Expense Breakdown -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100 flex justify-between items-center">
+            <h2 class="font-semibold text-primary-900">Expense Breakdown</h2>
+            <a href="{% url 'finance:expense_list' %}" class="text-sm text-accent-600 hover:text-accent-700">View all</a>
+        </div>
+        <div class="p-6">
+            <table class="w-full text-sm">
+                <tbody>
+                    {% for category, data in summary.expenses.by_category.items %}
+                    <tr class="border-b border-primary-100">
+                        <td class="py-2 text-primary-700">{{ data.label }}</td>
+                        <td class="py-2 text-right font-medium">&pound;{{ data.total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="font-semibold">
+                        <td class="py-2">Total Expenses</td>
+                        <td class="py-2 text-right">&pound;{{ summary.expenses.total|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="grid lg:grid-cols-2 gap-8">
+    <!-- Recent Transactions -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100">
+            <h2 class="font-semibold text-primary-900">Recent Transactions</h2>
+        </div>
+        {% if recent_transactions %}
+        <div class="divide-y divide-primary-100">
+            {% for trans in recent_transactions %}
+            <div class="px-6 py-3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-medium text-primary-900">
+                            {% if trans.workshop_registration %}
+                                {{ trans.workshop_registration.workshop.title }}
+                            {% else %}
+                                {{ trans.concert_order.concert.title }}
+                            {% endif %}
+                        </p>
+                        <p class="text-xs text-primary-500">
+                            {{ trans.transaction_date|date:"j M Y" }} &middot;
+                            {% if trans.workshop_registration %}
+                                {{ trans.workshop_registration.user.get_full_name|default:trans.workshop_registration.user.email }}
+                            {% else %}
+                                {{ trans.concert_order.name }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium text-green-600">+&pound;{{ trans.net_pounds|floatformat:2 }}</p>
+                        <p class="text-xs text-primary-500">Fee: &pound;{{ trans.fee_pounds|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-6 text-center text-primary-500">
+            No transactions in this period
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100 flex justify-between items-center">
+            <h2 class="font-semibold text-primary-900">Recent Expenses</h2>
+            <a href="{% url 'finance:expense_create' %}" class="text-sm text-accent-600 hover:text-accent-700">+ Add</a>
+        </div>
+        {% if recent_expenses %}
+        <div class="divide-y divide-primary-100">
+            {% for expense in recent_expenses %}
+            <div class="px-6 py-3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-medium text-primary-900">{{ expense.description }}</p>
+                        <p class="text-xs text-primary-500">
+                            {{ expense.expense_date|date:"j M Y" }} &middot;
+                            {{ expense.get_category_display }}
+                            {% if expense.event %} &middot; {{ expense.event.title }}{% endif %}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium text-red-600">-&pound;{{ expense.amount|floatformat:2 }}</p>
+                        <a href="{% url 'finance:expense_edit' expense.pk %}" class="text-xs text-accent-600 hover:text-accent-700">Edit</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-6 text-center text-primary-500">
+            No expenses in this period
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div class="bg-white rounded-lg shadow-sm p-6 mt-8">
+    <h2 class="font-semibold text-primary-900 mb-4">Quick Links</h2>
+    <div class="flex flex-wrap gap-4">
+        <a href="{% url 'finance:expense_list' %}" class="text-accent-600 hover:text-accent-700">Manage Expenses</a>
+        <a href="{% url 'finance:event_comparison' %}" class="text-accent-600 hover:text-accent-700">Event Comparison</a>
+        <a href="{% url 'finance:export_csv' %}?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}"
+           class="text-accent-600 hover:text-accent-700">Export Tax Year Data (CSV)</a>
+    </div>
+</div>
+{% endblock %}

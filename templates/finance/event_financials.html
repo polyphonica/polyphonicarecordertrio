@@ -1,0 +1,205 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}{{ event.title }} - Financials - Polyphonica{% endblock %}
+{% block page_title %}{{ event.title }}{% endblock %}
+{% block page_subtitle %}Financial breakdown{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'finance:expense_create' %}?{{ event_type }}={{ event.pk }}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+    + Add Expense
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<!-- Event Info -->
+<div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+        <div>
+            <span class="px-2 py-1 text-xs font-medium rounded-full
+                {% if event_type == 'workshop' %}bg-blue-100 text-blue-700{% else %}bg-purple-100 text-purple-700{% endif %}">
+                {{ event_type|title }}
+            </span>
+            <h2 class="text-xl font-bold text-primary-900 mt-2">{{ event.title }}</h2>
+            <p class="text-primary-600">{{ event.date|date:"l, j F Y" }}</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            {% if event_type == 'workshop' %}
+            <a href="{% url 'workshops:staff_workshop_edit' event.pk %}" class="text-accent-600 hover:text-accent-700">
+                View Workshop Details &rarr;
+            </a>
+            {% else %}
+            <a href="{% url 'concerts:staff_concert_edit' event.pk %}" class="text-accent-600 hover:text-accent-700">
+                View Concert Details &rarr;
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Financial Summary -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-2xl font-bold text-green-600">&pound;{{ gross_income|floatformat:2 }}</div>
+        <div class="text-sm text-primary-600">Gross Income</div>
+        <div class="text-xs text-primary-400">{{ transaction_count }} transaction{{ transaction_count|pluralize }}</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-2xl font-bold text-orange-600">&pound;{{ stripe_fees|floatformat:2 }}</div>
+        <div class="text-sm text-primary-600">Stripe Fees</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-2xl font-bold text-red-600">&pound;{{ expense_total|floatformat:2 }}</div>
+        <div class="text-sm text-primary-600">Expenses</div>
+    </div>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="text-2xl font-bold {% if profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+            &pound;{{ profit|floatformat:2 }}
+        </div>
+        <div class="text-sm text-primary-600">Net Profit</div>
+    </div>
+</div>
+
+<!-- Detailed Breakdown -->
+<div class="grid lg:grid-cols-2 gap-8 mb-8">
+    <!-- Income Details -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100">
+            <h2 class="font-semibold text-primary-900">Income</h2>
+        </div>
+        <div class="p-6">
+            <table class="w-full text-sm">
+                <tbody>
+                    <tr class="border-b border-primary-100">
+                        <td class="py-2 text-primary-700">Gross Income</td>
+                        <td class="py-2 text-right font-medium">&pound;{{ gross_income|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="border-b border-primary-100">
+                        <td class="py-2 text-primary-700">Stripe Fees</td>
+                        <td class="py-2 text-right font-medium text-orange-600">-&pound;{{ stripe_fees|floatformat:2 }}</td>
+                    </tr>
+                    <tr class="font-semibold">
+                        <td class="py-2">Net Income</td>
+                        <td class="py-2 text-right text-green-600">&pound;{{ net_income|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Expense Details -->
+    <div class="bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-primary-100 flex justify-between items-center">
+            <h2 class="font-semibold text-primary-900">Expenses</h2>
+            <a href="{% url 'finance:expense_create' %}" class="text-sm text-accent-600 hover:text-accent-700">+ Add</a>
+        </div>
+        <div class="p-6">
+            {% if expense_by_category %}
+            <table class="w-full text-sm">
+                <tbody>
+                    {% for category, data in expense_by_category.items %}
+                    <tr class="border-b border-primary-100">
+                        <td class="py-2 text-primary-700">{{ data.label }}</td>
+                        <td class="py-2 text-right font-medium">-&pound;{{ data.total|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="font-semibold">
+                        <td class="py-2">Total Expenses</td>
+                        <td class="py-2 text-right text-red-600">-&pound;{{ expense_total|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-primary-500 text-center">No expenses recorded</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Transactions Table -->
+{% if transactions %}
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Transactions</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">
+                        {% if event_type == 'workshop' %}Attendee{% else %}Customer{% endif %}
+                    </th>
+                    <th class="px-6 py-3 text-right">Gross</th>
+                    <th class="px-6 py-3 text-right">Fee</th>
+                    <th class="px-6 py-3 text-right">Net</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for trans in transactions %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-3 text-sm text-primary-600">{{ trans.transaction_date|date:"j M Y" }}</td>
+                    <td class="px-6 py-3 text-sm text-primary-900">
+                        {% if event_type == 'workshop' %}
+                            {{ trans.workshop_registration.user.get_full_name|default:trans.workshop_registration.user.email }}
+                        {% else %}
+                            {{ trans.concert_order.name }}
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 text-sm text-right">&pound;{{ trans.gross_pounds|floatformat:2 }}</td>
+                    <td class="px-6 py-3 text-sm text-right text-orange-600">-&pound;{{ trans.fee_pounds|floatformat:2 }}</td>
+                    <td class="px-6 py-3 text-sm text-right font-medium">&pound;{{ trans.net_pounds|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Expenses Table -->
+{% if expenses %}
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Expense Records</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Description</th>
+                    <th class="px-6 py-3">Category</th>
+                    <th class="px-6 py-3 text-right">Amount</th>
+                    <th class="px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for exp in expenses %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-3 text-sm text-primary-600">{{ exp.expense_date|date:"j M Y" }}</td>
+                    <td class="px-6 py-3 text-sm text-primary-900">{{ exp.description }}</td>
+                    <td class="px-6 py-3">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full
+                            {% if exp.category == 'venue_hire' %}bg-blue-100 text-blue-700
+                            {% elif exp.category == 'refreshments' %}bg-purple-100 text-purple-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ exp.get_category_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-3 text-sm text-right font-medium text-red-600">-&pound;{{ exp.amount|floatformat:2 }}</td>
+                    <td class="px-6 py-3 text-sm">
+                        <a href="{% url 'finance:expense_edit' exp.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Back Link -->
+<div class="mt-6">
+    <a href="{% url 'finance:dashboard' %}" class="text-accent-600 hover:text-accent-700">&larr; Back to Finance Dashboard</a>
+</div>
+{% endblock %}

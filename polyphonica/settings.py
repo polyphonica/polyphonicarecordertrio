@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'media_content',
     'accounts',
     'repertoire',
+    'finance',
 ]
 
 MIDDLEWARE = [

@@ -1,0 +1,146 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Event Comparison - Finance - Polyphonica{% endblock %}
+{% block page_title %}Event Comparison{% endblock %}
+{% block page_subtitle %}Compare financial performance across events{% endblock %}
+
+{% block staff_content %}
+<!-- Date Range Filter -->
+<div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <form method="get" class="flex flex-wrap gap-4 items-end">
+        <div>
+            <label class="block text-sm font-medium text-primary-700 mb-1">Start Date</label>
+            <input type="date" name="start_date" value="{{ start_date|date:'Y-m-d' }}"
+                   class="px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-primary-700 mb-1">End Date</label>
+            <input type="date" name="end_date" value="{{ end_date|date:'Y-m-d' }}"
+                   class="px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+        </div>
+        <button type="submit" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
+            Update
+        </button>
+    </form>
+    <p class="text-sm text-primary-500 mt-2">Showing events from {{ start_date|date:"j M Y" }} to {{ end_date|date:"j M Y" }}</p>
+</div>
+
+<!-- Workshops Comparison -->
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Workshops</h2>
+    </div>
+
+    {% if workshops %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Workshop</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3 text-right">Attendees</th>
+                    <th class="px-6 py-3 text-right">Gross</th>
+                    <th class="px-6 py-3 text-right">Fees</th>
+                    <th class="px-6 py-3 text-right">Expenses</th>
+                    <th class="px-6 py-3 text-right">Profit</th>
+                    <th class="px-6 py-3">Details</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for data in workshops %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4 font-medium text-primary-900">{{ data.event.title }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ data.event.date|date:"j M Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-right">{{ data.transaction_count }}</td>
+                    <td class="px-6 py-4 text-sm text-right">&pound;{{ data.gross_income|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right text-orange-600">-&pound;{{ data.stripe_fees|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right text-red-600">-&pound;{{ data.expense_total|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right font-medium {% if data.profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        &pound;{{ data.profit|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <a href="{% url 'finance:workshop_financials' data.event.pk %}" class="text-accent-600 hover:text-accent-700">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot class="bg-primary-50">
+                <tr class="font-semibold">
+                    <td class="px-6 py-3" colspan="2">Workshop Totals</td>
+                    <td class="px-6 py-3 text-right">
+                        {% with total=0 %}
+                            {% for data in workshops %}{% endfor %}
+                        {% endwith %}
+                    </td>
+                    <td class="px-6 py-3 text-right">
+                        &pound;{% widthratio 0 1 1 as zero %}
+                        {% for data in workshops %}{% endfor %}
+                    </td>
+                    <td class="px-6 py-3 text-right text-orange-600"></td>
+                    <td class="px-6 py-3 text-right text-red-600"></td>
+                    <td class="px-6 py-3 text-right"></td>
+                    <td class="px-6 py-3"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-primary-500">
+        No workshops in this period
+    </div>
+    {% endif %}
+</div>
+
+<!-- Concerts Comparison -->
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100">
+        <h2 class="font-semibold text-primary-900">Concerts (Internal Ticket Sales)</h2>
+    </div>
+
+    {% if concerts %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Concert</th>
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3 text-right">Orders</th>
+                    <th class="px-6 py-3 text-right">Gross</th>
+                    <th class="px-6 py-3 text-right">Fees</th>
+                    <th class="px-6 py-3 text-right">Expenses</th>
+                    <th class="px-6 py-3 text-right">Profit</th>
+                    <th class="px-6 py-3">Details</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for data in concerts %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4 font-medium text-primary-900">{{ data.event.title }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ data.event.date|date:"j M Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-right">{{ data.transaction_count }}</td>
+                    <td class="px-6 py-4 text-sm text-right">&pound;{{ data.gross_income|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right text-orange-600">-&pound;{{ data.stripe_fees|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right text-red-600">-&pound;{{ data.expense_total|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-sm text-right font-medium {% if data.profit >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        &pound;{{ data.profit|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <a href="{% url 'finance:concert_financials' data.event.pk %}" class="text-accent-600 hover:text-accent-700">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-primary-500">
+        No concerts with internal ticket sales in this period
+    </div>
+    {% endif %}
+</div>
+
+<!-- Back Link -->
+<div class="mt-6">
+    <a href="{% url 'finance:dashboard' %}" class="text-accent-600 hover:text-accent-700">&larr; Back to Finance Dashboard</a>
+</div>
+{% endblock %}

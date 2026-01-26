@@ -38,6 +38,7 @@ urlpatterns = [
     path('media/', include('media_content.urls')),
     path('accounts/', include('accounts.urls')),
     path('manage/repertoire/', include('repertoire.urls')),
+    path('manage/finance/', include('finance.urls')),
 ]
 
 # Serve media files in development
