@@ -166,8 +166,11 @@
                         {% elif concert.ticket_source == 'door' %}
                             <p class="text-primary-600">Tickets available on the door</p>
 
-                        {% else %}
-                            <p class="text-primary-600">Free entry or by invitation</p>
+                        {% elif concert.ticket_source == 'collection' %}
+                            <p class="text-primary-600">Free entry with retiring collection</p>
+
+                        {% elif concert.ticket_source == 'free' %}
+                            <p class="text-primary-600">Free entry</p>
                         {% endif %}
                     </div>
                 </div>
