@@ -17,7 +17,8 @@ class Concert(models.Model):
         ('internal', 'Sell on this site'),
         ('external', 'External ticket link'),
         ('door', 'Available on the door'),
-        ('none', 'No tickets (free entry or private)'),
+        ('collection', 'Free entry with retiring collection'),
+        ('free', 'Free entry'),
     ]
 
     # Basic info
