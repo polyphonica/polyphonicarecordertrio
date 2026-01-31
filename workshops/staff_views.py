@@ -30,7 +30,7 @@ class WorkshopForm(forms.ModelForm):
             'meeting_link', 'meeting_password',
             'prerequisites', 'materials_needed',
             'image',
-            'price', 'max_participants',
+            'price', 'max_participants', 'legacy_bookings', 'hide_availability',
             'status',
         ]
         widgets = {

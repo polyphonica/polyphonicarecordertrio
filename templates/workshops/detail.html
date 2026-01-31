@@ -197,6 +197,7 @@
                     </div>
 
                     <!-- Capacity -->
+                    {% if not workshop.hide_availability %}
                     <div class="mb-6">
                         <h3 class="font-semibold text-primary-900 mb-2">Availability</h3>
                         <p class="text-primary-700">
@@ -208,6 +209,7 @@
                             <span class="block text-sm text-primary-500">{{ workshop.max_participants }} maximum participants</span>
                         </p>
                     </div>
+                    {% endif %}
 
                     <!-- Price & Registration -->
                     <div class="border-t border-primary-200 pt-6">

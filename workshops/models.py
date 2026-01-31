@@ -60,6 +60,14 @@ class Workshop(models.Model):
     # Capacity
     max_participants = models.PositiveIntegerField(default=20)
     current_registrations = models.PositiveIntegerField(default=0)
+    legacy_bookings = models.PositiveIntegerField(
+        default=0,
+        help_text="Bookings from legacy system (e.g. Stripe) not yet imported"
+    )
+    hide_availability = models.BooleanField(
+        default=False,
+        help_text="Hide the availability section on the public page"
+    )
 
     # Status
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', db_index=True)
@@ -106,12 +114,16 @@ class Workshop(models.Model):
         return reverse('workshops:detail', kwargs={'slug': self.slug})
 
     @property
+    def total_bookings(self):
+        return self.current_registrations + self.legacy_bookings
+
+    @property
     def is_full(self):
-        return self.current_registrations >= self.max_participants
+        return self.total_bookings >= self.max_participants
 
     @property
     def places_remaining(self):
-        return max(0, self.max_participants - self.current_registrations)
+        return max(0, self.max_participants - self.total_bookings)
 
     @property
     def is_online(self):
