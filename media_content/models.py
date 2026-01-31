@@ -2,10 +2,11 @@ from django.db import models
 
 
 class MediaItem(models.Model):
-    """Audio and video media items."""
+    """Audio, video, and image media items."""
     MEDIA_TYPE_CHOICES = [
         ('video', 'Video'),
         ('audio', 'Audio'),
+        ('image', 'Image'),
     ]
 
     title = models.CharField(max_length=200)
@@ -19,6 +20,10 @@ class MediaItem(models.Model):
     # For audio
     audio_file = models.FileField(upload_to='audio/', blank=True, null=True)
     audio_url = models.URLField(blank=True, help_text="External audio URL (SoundCloud, etc.)")
+
+    # For images (publicity/press photos)
+    image_file = models.ImageField(upload_to='press_photos/', blank=True, null=True)
+    caption = models.CharField(max_length=500, blank=True, help_text="Photo caption or credit")
 
     # Thumbnail
     thumbnail = models.ImageField(upload_to='media_thumbnails/', blank=True, null=True)

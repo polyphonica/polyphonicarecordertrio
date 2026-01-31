@@ -1,0 +1,182 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Manage Media - Polyphonica{% endblock %}
+{% block page_title %}Media{% endblock %}
+{% block page_subtitle %}Manage videos, audio, and press photos{% endblock %}
+
+{% block page_actions %}
+<div class="flex gap-2">
+    <a href="{% url 'media_content:staff_media_create' %}?type=video" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+        + Video
+    </a>
+    <a href="{% url 'media_content:staff_media_create' %}?type=audio" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+        + Audio
+    </a>
+    <a href="{% url 'media_content:staff_media_create' %}?type=image" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+        + Image
+    </a>
+</div>
+{% endblock %}
+
+{% block staff_content %}
+<!-- Videos Section -->
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100 flex items-center justify-between">
+        <h2 class="font-semibold text-primary-900">Videos</h2>
+        <span class="text-sm text-primary-500">{{ videos.count }} item{{ videos.count|pluralize }}</span>
+    </div>
+    {% if videos %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Title</th>
+                    <th class="px-6 py-3">Category</th>
+                    <th class="px-6 py-3">Featured</th>
+                    <th class="px-6 py-3">Published</th>
+                    <th class="px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for item in videos %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4">
+                        <a href="{% url 'media_content:staff_media_edit' item.pk %}" class="font-medium text-primary-900 hover:text-accent-600">
+                            {{ item.title }}
+                        </a>
+                        {% if item.video_url %}
+                        <p class="text-xs text-primary-500 truncate max-w-xs">{{ item.video_url }}</p>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ item.category|default:"-" }}</td>
+                    <td class="px-6 py-4">
+                        {% if item.is_featured %}
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Featured</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full {% if item.is_published %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {% if item.is_published %}Published{% else %}Draft{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm space-x-3">
+                        <a href="{% url 'media_content:staff_media_edit' item.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                        <a href="{% url 'media_content:staff_media_delete' item.pk %}" class="text-red-500 hover:text-red-700">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-primary-500">
+        No videos yet. <a href="{% url 'media_content:staff_media_create' %}?type=video" class="text-accent-600 hover:text-accent-700">Add one</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Audio Section -->
+<div class="bg-white rounded-lg shadow-sm mb-8">
+    <div class="px-6 py-4 border-b border-primary-100 flex items-center justify-between">
+        <h2 class="font-semibold text-primary-900">Audio</h2>
+        <span class="text-sm text-primary-500">{{ audio.count }} item{{ audio.count|pluralize }}</span>
+    </div>
+    {% if audio %}
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-primary-50 text-left text-sm text-primary-600">
+                <tr>
+                    <th class="px-6 py-3">Title</th>
+                    <th class="px-6 py-3">Category</th>
+                    <th class="px-6 py-3">Source</th>
+                    <th class="px-6 py-3">Featured</th>
+                    <th class="px-6 py-3">Published</th>
+                    <th class="px-6 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-primary-100">
+                {% for item in audio %}
+                <tr class="hover:bg-primary-50">
+                    <td class="px-6 py-4">
+                        <a href="{% url 'media_content:staff_media_edit' item.pk %}" class="font-medium text-primary-900 hover:text-accent-600">
+                            {{ item.title }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-primary-600">{{ item.category|default:"-" }}</td>
+                    <td class="px-6 py-4 text-sm text-primary-600">
+                        {% if item.audio_file %}Uploaded{% elif item.audio_url %}External{% else %}-{% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if item.is_featured %}
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">Featured</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full {% if item.is_published %}bg-green-100 text-green-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+                            {% if item.is_published %}Published{% else %}Draft{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm space-x-3">
+                        <a href="{% url 'media_content:staff_media_edit' item.pk %}" class="text-accent-600 hover:text-accent-700">Edit</a>
+                        <a href="{% url 'media_content:staff_media_delete' item.pk %}" class="text-red-500 hover:text-red-700">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-primary-500">
+        No audio yet. <a href="{% url 'media_content:staff_media_create' %}?type=audio" class="text-accent-600 hover:text-accent-700">Add one</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Images Section -->
+<div class="bg-white rounded-lg shadow-sm">
+    <div class="px-6 py-4 border-b border-primary-100 flex items-center justify-between">
+        <h2 class="font-semibold text-primary-900">Press Photos</h2>
+        <span class="text-sm text-primary-500">{{ images.count }} item{{ images.count|pluralize }}</span>
+    </div>
+    {% if images %}
+    <div class="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {% for item in images %}
+        <div class="group relative bg-primary-100 rounded-lg overflow-hidden aspect-square">
+            {% if item.image_file %}
+            <img src="{{ item.image_file.url }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+            {% elif item.thumbnail %}
+            <img src="{{ item.thumbnail.url }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center">
+                <svg class="w-12 h-12 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            {% endif %}
+            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
+                <p class="text-white text-sm font-medium text-center mb-2">{{ item.title }}</p>
+                <div class="flex gap-2">
+                    <a href="{% url 'media_content:staff_media_edit' item.pk %}" class="px-3 py-1 bg-white text-primary-900 text-xs font-medium rounded hover:bg-primary-100">Edit</a>
+                    <a href="{% url 'media_content:staff_media_delete' item.pk %}" class="px-3 py-1 bg-red-500 text-white text-xs font-medium rounded hover:bg-red-600">Delete</a>
+                </div>
+            </div>
+            {% if not item.is_published %}
+            <div class="absolute top-2 left-2">
+                <span class="px-2 py-1 text-xs font-medium rounded bg-gray-800 text-white">Draft</span>
+            </div>
+            {% endif %}
+            {% if item.is_featured %}
+            <div class="absolute top-2 right-2">
+                <span class="px-2 py-1 text-xs font-medium rounded bg-yellow-400 text-yellow-900">Featured</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-6 text-center text-primary-500">
+        No press photos yet. <a href="{% url 'media_content:staff_media_create' %}?type=image" class="text-accent-600 hover:text-accent-700">Add one</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

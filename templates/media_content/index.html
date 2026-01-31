@@ -118,8 +118,57 @@
 </section>
 {% endif %}
 
+<!-- Press Photos Section -->
+{% if images %}
+<section class="py-16 px-4 bg-white">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl font-serif font-semibold text-primary-900 mb-4">Press Photos</h2>
+        <p class="text-primary-600 mb-8">High-resolution images available for press and publicity use.</p>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for image in images %}
+            <div class="bg-primary-50 rounded-xl overflow-hidden group">
+                <!-- Image -->
+                <div class="aspect-[4/3] relative overflow-hidden">
+                    {% if image.image_file %}
+                    <img src="{{ image.image_file.url }}" alt="{{ image.title }}"
+                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                    {% elif image.thumbnail %}
+                    <img src="{{ image.thumbnail.url }}" alt="{{ image.title }}"
+                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-primary-200">
+                        <svg class="w-16 h-16 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="p-4">
+                    <h3 class="font-semibold text-primary-900 mb-1">{{ image.title }}</h3>
+                    {% if image.caption %}
+                    <p class="text-sm text-primary-600 mb-3">{{ image.caption }}</p>
+                    {% endif %}
+                    {% if image.image_file %}
+                    <a href="{{ image.image_file.url }}" download
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white text-sm font-medium rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Download
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- Empty State -->
-{% if not videos and not audio %}
+{% if not videos and not audio and not images %}
 <section class="py-16 px-4 bg-white">
     <div class="max-w-4xl mx-auto">
         <div class="text-center py-12 bg-primary-50 rounded-xl">
@@ -128,7 +177,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <p class="text-primary-600">Media content coming soon.</p>
-            <p class="text-primary-500 text-sm mt-2">Check back for videos and audio recordings.</p>
+            <p class="text-primary-500 text-sm mt-2">Check back for videos, audio recordings, and press photos.</p>
         </div>
     </div>
 </section>

@@ -38,6 +38,10 @@
                class="px-4 py-2 rounded-md text-sm font-medium {% if 'about' in request.resolver_match.url_name or 'player' in request.resolver_match.url_name %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
                 About
             </a>
+            <a href="{% url 'media_content:staff_media_list' %}"
+               class="px-4 py-2 rounded-md text-sm font-medium {% if 'media' in request.resolver_match.url_name %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
+                Media
+            </a>
             <a href="{% url 'finance:dashboard' %}"
                class="px-4 py-2 rounded-md text-sm font-medium {% if request.resolver_match.app_name == 'finance' %}bg-accent-500 text-white{% else %}text-primary-700 hover:bg-primary-100{% endif %}">
                 Finance

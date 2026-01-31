@@ -1,0 +1,220 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}{{ action }} Media - Polyphonica{% endblock %}
+{% block page_title %}{{ action }} Media{% endblock %}
+{% block page_subtitle %}{% if media_item %}Editing: {{ media_item.title }}{% else %}Add new media content{% endif %}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'media_content:staff_media_list' %}" class="px-4 py-2 border border-primary-300 text-primary-700 font-medium rounded-lg hover:bg-primary-50 transition-colors">
+    Cancel
+</a>
+{% endblock %}
+
+{% block staff_content %}
+<form method="post" enctype="multipart/form-data" class="max-w-4xl" id="media-form">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <p class="font-medium mb-2">Please correct the errors below:</p>
+        <ul class="list-disc list-inside">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Basic Info -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Basic Information</h2>
+
+        <div class="mb-4">
+            <label for="id_media_type" class="block text-sm font-medium text-primary-700 mb-1">Media Type *</label>
+            <select name="media_type" id="id_media_type" required
+                    class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+                {% for value, label in form.fields.media_type.choices %}
+                <option value="{{ value }}" {% if form.media_type.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <label for="id_title" class="block text-sm font-medium text-primary-700 mb-1">Title *</label>
+            <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}" required
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+        </div>
+
+        <div class="mb-4">
+            <label for="id_description" class="block text-sm font-medium text-primary-700 mb-1">Description</label>
+            <textarea name="description" id="id_description" rows="3"
+                      class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">{{ form.description.value|default:'' }}</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="id_category" class="block text-sm font-medium text-primary-700 mb-1">Category</label>
+                <input type="text" name="category" id="id_category" value="{{ form.category.value|default:'' }}"
+                       placeholder="e.g., Live Performance, Studio Recording"
+                       class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+            </div>
+            <div>
+                <label for="id_performance_date" class="block text-sm font-medium text-primary-700 mb-1">Performance Date</label>
+                <input type="date" name="performance_date" id="id_performance_date" value="{{ form.performance_date.value|date:'Y-m-d'|default:'' }}"
+                       class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Fields -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6" id="video-fields">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Video Settings</h2>
+
+        <div class="mb-4">
+            <label for="id_video_url" class="block text-sm font-medium text-primary-700 mb-1">Video URL</label>
+            <input type="url" name="video_url" id="id_video_url" value="{{ form.video_url.value|default:'' }}"
+                   placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+            <p class="text-xs text-primary-500 mt-1">YouTube or Vimeo URL</p>
+        </div>
+
+        <div>
+            <label for="id_video_embed_code" class="block text-sm font-medium text-primary-700 mb-1">Custom Embed Code</label>
+            <textarea name="video_embed_code" id="id_video_embed_code" rows="3"
+                      placeholder="<iframe ...></iframe>"
+                      class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 font-mono text-sm">{{ form.video_embed_code.value|default:'' }}</textarea>
+            <p class="text-xs text-primary-500 mt-1">Optional: paste custom embed code if not using YouTube/Vimeo URL</p>
+        </div>
+    </div>
+
+    <!-- Audio Fields -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6" id="audio-fields">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Audio Settings</h2>
+
+        <div class="mb-4">
+            <label for="id_audio_file" class="block text-sm font-medium text-primary-700 mb-1">Audio File</label>
+            {% if media_item.audio_file %}
+            <div class="mb-2 p-3 bg-primary-50 rounded-lg flex items-center gap-3">
+                <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                </svg>
+                <span class="text-sm text-primary-700">Current: {{ media_item.audio_file.name }}</span>
+            </div>
+            {% endif %}
+            <input type="file" name="audio_file" id="id_audio_file" accept="audio/*"
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg">
+            <p class="text-xs text-primary-500 mt-1">Upload MP3, WAV, or other audio files</p>
+        </div>
+
+        <div>
+            <label for="id_audio_url" class="block text-sm font-medium text-primary-700 mb-1">External Audio URL</label>
+            <input type="url" name="audio_url" id="id_audio_url" value="{{ form.audio_url.value|default:'' }}"
+                   placeholder="https://soundcloud.com/..."
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+            <p class="text-xs text-primary-500 mt-1">Alternative: link to SoundCloud or other external audio</p>
+        </div>
+    </div>
+
+    <!-- Image Fields -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6" id="image-fields">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Image Settings</h2>
+
+        <div class="mb-4">
+            <label for="id_image_file" class="block text-sm font-medium text-primary-700 mb-1">Image File</label>
+            {% if media_item.image_file %}
+            <div class="mb-2">
+                <img src="{{ media_item.image_file.url }}" alt="{{ media_item.title }}" class="h-32 rounded">
+            </div>
+            {% endif %}
+            <input type="file" name="image_file" id="id_image_file" accept="image/*"
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg">
+            <p class="text-xs text-primary-500 mt-1">Upload high-resolution image for press/publicity use</p>
+        </div>
+
+        <div>
+            <label for="id_caption" class="block text-sm font-medium text-primary-700 mb-1">Caption</label>
+            <input type="text" name="caption" id="id_caption" value="{{ form.caption.value|default:'' }}"
+                   placeholder="Photo credit or description"
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+        </div>
+    </div>
+
+    <!-- Thumbnail (for all types) -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6" id="thumbnail-section">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Thumbnail</h2>
+
+        <div>
+            <label for="id_thumbnail" class="block text-sm font-medium text-primary-700 mb-1">Thumbnail Image</label>
+            {% if media_item.thumbnail %}
+            <div class="mb-2">
+                <img src="{{ media_item.thumbnail.url }}" alt="Thumbnail" class="h-24 rounded">
+            </div>
+            {% endif %}
+            <input type="file" name="thumbnail" id="id_thumbnail" accept="image/*"
+                   class="w-full px-4 py-2 border border-primary-300 rounded-lg">
+            <p class="text-xs text-primary-500 mt-1">Optional preview image (used for videos and audio)</p>
+        </div>
+    </div>
+
+    <!-- Display Settings -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-primary-900 mb-4">Display Settings</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label for="id_display_order" class="block text-sm font-medium text-primary-700 mb-1">Display Order</label>
+                <input type="number" name="display_order" id="id_display_order" value="{{ form.display_order.value|default:'0' }}"
+                       class="w-full px-4 py-2 border border-primary-300 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500">
+                <p class="text-xs text-primary-500 mt-1">Lower numbers appear first</p>
+            </div>
+            <div class="flex items-center pt-6">
+                <input type="checkbox" name="is_featured" id="id_is_featured" {% if form.is_featured.value %}checked{% endif %}
+                       class="w-4 h-4 text-accent-600 border-primary-300 rounded focus:ring-accent-500">
+                <label for="id_is_featured" class="ml-2 text-sm font-medium text-primary-700">Featured</label>
+            </div>
+            <div class="flex items-center pt-6">
+                <input type="checkbox" name="is_published" id="id_is_published" {% if form.is_published.value %}checked{% endif %}
+                       class="w-4 h-4 text-accent-600 border-primary-300 rounded focus:ring-accent-500">
+                <label for="id_is_published" class="ml-2 text-sm font-medium text-primary-700">Published</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex justify-between items-center">
+        {% if media_item %}
+        <a href="{% url 'media_content:staff_media_delete' media_item.pk %}" class="text-red-600 hover:text-red-700">Delete</a>
+        {% else %}
+        <span></span>
+        {% endif %}
+        <button type="submit" class="px-6 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors">
+            {{ action }} Media
+        </button>
+    </div>
+</form>
+
+<script>
+    // Show/hide fields based on media type
+    function updateFieldsVisibility() {
+        const mediaType = document.getElementById('id_media_type').value;
+        const videoFields = document.getElementById('video-fields');
+        const audioFields = document.getElementById('audio-fields');
+        const imageFields = document.getElementById('image-fields');
+        const thumbnailSection = document.getElementById('thumbnail-section');
+
+        videoFields.style.display = mediaType === 'video' ? 'block' : 'none';
+        audioFields.style.display = mediaType === 'audio' ? 'block' : 'none';
+        imageFields.style.display = mediaType === 'image' ? 'block' : 'none';
+        // Show thumbnail for video and audio, hide for image (image_file serves as the main image)
+        thumbnailSection.style.display = mediaType === 'image' ? 'none' : 'block';
+    }
+
+    document.getElementById('id_media_type').addEventListener('change', updateFieldsVisibility);
+    updateFieldsVisibility();
+</script>
+{% endblock %}
