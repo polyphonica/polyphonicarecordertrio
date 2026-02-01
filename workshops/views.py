@@ -260,7 +260,8 @@ def checkout_success(request, slug):
                 # Send confirmation email for re-registration
                 send_registration_confirmation_email(user, workshop, existing_registration)
 
-            messages.success(request, f'You are registered for {workshop.title}!')
+            registration = existing_registration
+            account_created = False
         else:
             # Create the registration
             registration = WorkshopRegistration.objects.create(
@@ -279,19 +280,14 @@ def checkout_success(request, slug):
                 stripe_payment_intent_id=payment_intent_id,
             )
 
+            account_created = reg_data.get('account_created', False)
+
             # Send account creation email if new user
-            if reg_data.get('account_created') and reg_data.get('password'):
+            if account_created and reg_data.get('password'):
                 send_account_created_email(user, reg_data['password'], workshop)
 
             # Send confirmation email
             send_registration_confirmation_email(user, workshop, registration)
-
-            messages.success(
-                request,
-                f'Payment successful! You are registered for {workshop.title}. '
-                f'{"An account has been created for you - check your email for login details. " if reg_data.get("account_created") else ""}'
-                f'A confirmation email has been sent.'
-            )
 
         # Clear session data
         if 'workshop_registration' in request.session:
@@ -299,7 +295,13 @@ def checkout_success(request, slug):
         if 'stripe_checkout_session_id' in request.session:
             del request.session['stripe_checkout_session_id']
 
-        return redirect('workshops:detail', slug=slug)
+        # Render success page with conversion tracking
+        return render(request, 'workshops/checkout_success.html', {
+            'workshop': workshop,
+            'registration': registration,
+            'user': user,
+            'account_created': account_created,
+        })
 
     except stripe.error.StripeError as e:
         messages.error(request, f'Error verifying payment: {str(e)}')

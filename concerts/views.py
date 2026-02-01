@@ -196,7 +196,7 @@ def checkout_success(request, slug):
         ).first()
 
         if existing_order:
-            messages.success(request, f'Your tickets for {concert.title} have been booked!')
+            order = existing_order
         else:
             # Create the order
             from decimal import Decimal
@@ -221,19 +221,17 @@ def checkout_success(request, slug):
             # Send confirmation email
             send_ticket_confirmation_email(order)
 
-            messages.success(
-                request,
-                f'Payment successful! Your {order.quantity} ticket(s) for {concert.title} '
-                f'have been booked. A confirmation email has been sent to {order.email}.'
-            )
-
         # Clear session data
         if 'concert_order' in request.session:
             del request.session['concert_order']
         if 'stripe_checkout_session_id' in request.session:
             del request.session['stripe_checkout_session_id']
 
-        return redirect('concerts:detail', slug=slug)
+        # Render success page with conversion tracking
+        return render(request, 'concerts/checkout_success.html', {
+            'concert': concert,
+            'order': order,
+        })
 
     except stripe.error.StripeError as e:
         messages.error(request, f'Error verifying payment: {str(e)}')
