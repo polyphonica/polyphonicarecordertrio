@@ -7,8 +7,11 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import HttpResponse
 from django.utils import timezone
 from django.db import models
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 
 def verify_turnstile(token):
@@ -154,3 +157,71 @@ def staff_dashboard(request):
         'total_tickets_sold': total_tickets_sold,
     }
     return render(request, 'core/staff_dashboard.html', context)
+
+
+@csrf_exempt
+@require_POST
+def stripe_webhook(request):
+    """
+    Unified Stripe webhook handler for all payment types.
+    Handles both workshop registrations and concert ticket orders.
+    """
+    from core.stripe_utils import verify_webhook
+    from workshops.models import Workshop, WorkshopRegistration
+    from concerts.models import Concert, ConcertTicketOrder
+    from django.contrib.auth.models import User
+
+    event, error_response = verify_webhook(request)
+    if error_response:
+        return error_response
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        metadata = session.get('metadata', {})
+        payment_type = metadata.get('type')
+
+        if payment_type == 'workshop':
+            # Handle workshop registration payment
+            workshop_id = metadata.get('workshop_id')
+            user_id = metadata.get('user_id')
+
+            if workshop_id and user_id:
+                try:
+                    workshop = Workshop.objects.get(id=workshop_id)
+                    user = User.objects.get(id=user_id)
+
+                    registration = WorkshopRegistration.objects.filter(
+                        workshop=workshop,
+                        user=user
+                    ).first()
+
+                    if registration and registration.status == 'pending':
+                        registration.status = 'paid'
+                        registration.amount_paid = workshop.price
+                        registration.paid_at = timezone.now()
+                        registration.stripe_checkout_session_id = session.get('id', '')
+                        registration.save()
+
+                except (Workshop.DoesNotExist, User.DoesNotExist):
+                    pass
+
+        elif payment_type == 'concert':
+            # Handle concert ticket payment
+            concert_id = metadata.get('concert_id')
+
+            if concert_id:
+                order = ConcertTicketOrder.objects.filter(
+                    stripe_checkout_session_id=session.get('id', ''),
+                    status='pending'
+                ).first()
+
+                if order:
+                    order.status = 'paid'
+                    order.paid_at = timezone.now()
+                    order.save()
+
+                    # Update tickets sold
+                    order.concert.tickets_sold += order.quantity
+                    order.concert.save(update_fields=['tickets_sold'])
+
+    return HttpResponse(status=200)
