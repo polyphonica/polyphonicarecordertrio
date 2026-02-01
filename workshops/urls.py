@@ -12,6 +12,7 @@ urlpatterns = [
     # Staff management
     path('manage/', staff_views.workshop_list, name='staff_workshop_list'),
     path('manage/create/', staff_views.workshop_create, name='staff_workshop_create'),
+    path('manage/terms/', staff_views.workshop_terms, name='staff_workshop_terms'),
     path('manage/<int:pk>/edit/', staff_views.workshop_edit, name='staff_workshop_edit'),
     path('manage/<int:pk>/delete/', staff_views.workshop_delete, name='staff_workshop_delete'),
     path('manage/<int:pk>/attendees/', staff_views.workshop_attendees, name='staff_workshop_attendees'),

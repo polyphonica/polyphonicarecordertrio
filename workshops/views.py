@@ -45,10 +45,14 @@ def detail(request, slug):
             registration_status = registration.status
             is_registered = registration.status in ['paid', 'attended']
 
+    # Get current terms for the modal
+    current_terms = WorkshopTerms.objects.filter(is_current=True).first()
+
     context = {
         'workshop': workshop,
         'is_registered': is_registered,
         'registration_status': registration_status,
+        'terms': current_terms,
     }
     return render(request, 'workshops/detail.html', context)
 

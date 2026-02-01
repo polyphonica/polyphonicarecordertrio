@@ -319,6 +319,56 @@ class EmailAttendeesForm(forms.Form):
     )
 
 
+class WorkshopTermsForm(forms.ModelForm):
+    """Form for editing workshop terms and conditions."""
+
+    class Meta:
+        model = WorkshopTerms
+        fields = ['version', 'effective_date', 'content', 'is_current']
+        widgets = {
+            'effective_date': forms.DateInput(attrs={'type': 'date'}),
+            'content': forms.HiddenInput(),  # Will be populated by Quill editor
+        }
+
+
+@staff_member_required
+def workshop_terms(request):
+    """Edit workshop terms and conditions."""
+    # Get current terms or create new one
+    terms = WorkshopTerms.objects.filter(is_current=True).first()
+
+    if request.method == 'POST':
+        if terms:
+            form = WorkshopTermsForm(request.POST, instance=terms)
+        else:
+            form = WorkshopTermsForm(request.POST)
+
+        if form.is_valid():
+            terms = form.save()
+            messages.success(request, 'Terms and conditions updated successfully.')
+            return redirect('workshops:staff_workshop_terms')
+    else:
+        if terms:
+            form = WorkshopTermsForm(instance=terms)
+        else:
+            # Default values for new terms
+            form = WorkshopTermsForm(initial={
+                'version': 1,
+                'effective_date': timezone.now().date(),
+                'is_current': True,
+            })
+
+    # Get all terms versions for history
+    all_terms = WorkshopTerms.objects.all().order_by('-version')
+
+    context = {
+        'form': form,
+        'terms': terms,
+        'all_terms': all_terms,
+    }
+    return render(request, 'workshops/staff/workshop_terms.html', context)
+
+
 @staff_member_required
 def workshop_email_attendees(request, pk):
     """Send email to all confirmed attendees of a workshop."""

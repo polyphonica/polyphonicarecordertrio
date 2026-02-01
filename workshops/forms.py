@@ -31,10 +31,6 @@ class WorkshopRegistrationForm(forms.Form):
         required=False,
         help_text="Dietary, accessibility, or other requirements"
     )
-    terms_accepted = forms.BooleanField(
-        required=True,
-        label="I accept the terms and conditions"
-    )
 
     def __init__(self, *args, user=None, workshop=None, **kwargs):
         super().__init__(*args, **kwargs)

@@ -140,34 +140,6 @@
             </div>
             {% endif %}
 
-            <!-- Terms and Conditions -->
-            <div class="border-t border-primary-200 pt-6 mb-6">
-                <h2 class="text-xl font-serif font-semibold text-primary-900 mb-4">Terms and Conditions</h2>
-
-                {% if terms %}
-                <div class="bg-primary-50 rounded-lg p-4 mb-4 max-h-48 overflow-y-auto text-sm text-primary-700">
-                    {{ terms.content|linebreaks }}
-                </div>
-                {% else %}
-                <div class="bg-primary-50 rounded-lg p-4 mb-4 text-sm text-primary-700">
-                    <p>By registering for this workshop, you agree to our standard terms and conditions including:</p>
-                    <ul class="list-disc list-inside mt-2 space-y-1">
-                        <li>Cancellations made 7 or more days before the workshop: full refund</li>
-                        <li>Cancellations made less than 7 days before: no refund</li>
-                        <li>We reserve the right to cancel workshops with full refunds issued</li>
-                    </ul>
-                </div>
-                {% endif %}
-
-                <label class="flex items-start">
-                    <input type="checkbox" name="terms_accepted" required
-                           class="mt-1 mr-3 h-4 w-4 text-accent-600 border-primary-300 rounded focus:ring-accent-500">
-                    <span class="text-sm text-primary-700">
-                        I accept the terms and conditions *
-                    </span>
-                </label>
-            </div>
-
             <!-- Submit Button -->
             <button type="submit"
                     class="w-full px-6 py-4 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-lg transition-colors duration-200 text-lg">

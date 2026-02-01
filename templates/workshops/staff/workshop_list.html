@@ -5,9 +5,14 @@
 {% block page_subtitle %}Manage workshop listings{% endblock %}
 
 {% block page_actions %}
-<a href="{% url 'workshops:staff_workshop_create' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
-    + New Workshop
-</a>
+<div class="flex gap-3">
+    <a href="{% url 'workshops:staff_workshop_terms' %}" class="px-4 py-2 border border-primary-300 text-primary-700 font-medium rounded-lg hover:bg-primary-50 transition-colors">
+        Terms & Conditions
+    </a>
+    <a href="{% url 'workshops:staff_workshop_create' %}" class="px-4 py-2 bg-accent-500 hover:bg-accent-600 text-white font-medium rounded-lg transition-colors">
+        + New Workshop
+    </a>
+</div>
 {% endblock %}
 
 {% block staff_content %}

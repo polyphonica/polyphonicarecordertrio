@@ -71,3 +71,19 @@ class WorkshopTermsAdmin(admin.ModelAdmin):
     list_display = ['version', 'effective_date', 'is_current', 'created_at']
     list_filter = ['is_current']
     ordering = ['-version']
+
+    fieldsets = (
+        (None, {
+            'fields': ('version', 'effective_date', 'is_current')
+        }),
+        ('Content', {
+            'fields': ('content',),
+            'description': 'Enter the terms and conditions text. Line breaks will be preserved.'
+        }),
+    )
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['content'].widget.attrs['rows'] = 20
+        form.base_fields['content'].widget.attrs['style'] = 'width: 100%; font-family: monospace;'
+        return form

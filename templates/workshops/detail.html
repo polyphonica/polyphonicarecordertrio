@@ -211,6 +211,18 @@
                     </div>
                     {% endif %}
 
+                    <!-- Terms & Conditions -->
+                    {% if not is_registered and not workshop.is_full %}
+                    <div class="border-t border-primary-200 pt-6 mb-4">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" id="terms-checkbox" class="mt-1 w-4 h-4 text-accent-600 border-primary-300 rounded focus:ring-accent-500">
+                            <span class="text-sm text-primary-700">
+                                I agree to the <a href="#" id="terms-link" class="text-accent-600 hover:text-accent-700 underline">Terms and Conditions</a>
+                            </span>
+                        </label>
+                    </div>
+                    {% endif %}
+
                     <!-- Price & Registration -->
                     <div class="border-t border-primary-200 pt-6">
                         <div class="flex justify-between items-center mb-4">
@@ -227,27 +239,27 @@
                                 Registration cancelled
                             </div>
                             {% if not workshop.is_full %}
-                            <a href="{% url 'workshops:register' workshop.slug %}" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                            <span id="register-btn" class="register-btn block w-full py-3 bg-primary-300 text-primary-500 text-center font-semibold rounded-lg cursor-not-allowed" data-href="{% url 'workshops:register' workshop.slug %}">
                                 Register Again
-                            </a>
+                            </span>
                             {% endif %}
                         {% elif registration_status == 'refunded' %}
                             <div class="w-full py-3 bg-gray-100 text-gray-600 text-center font-semibold rounded-lg mb-3">
                                 Registration cancelled & refunded
                             </div>
                             {% if not workshop.is_full %}
-                            <a href="{% url 'workshops:register' workshop.slug %}" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                            <span id="register-btn" class="register-btn block w-full py-3 bg-primary-300 text-primary-500 text-center font-semibold rounded-lg cursor-not-allowed" data-href="{% url 'workshops:register' workshop.slug %}">
                                 Register Again
-                            </a>
+                            </span>
                             {% endif %}
                         {% elif workshop.is_full %}
                             <div class="w-full py-3 bg-primary-300 text-primary-600 text-center font-semibold rounded-lg">
                                 Sold Out
                             </div>
                         {% else %}
-                            <a href="{% url 'workshops:register' workshop.slug %}" class="block w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                            <span id="register-btn" class="register-btn block w-full py-3 bg-primary-300 text-primary-500 text-center font-semibold rounded-lg cursor-not-allowed" data-href="{% url 'workshops:register' workshop.slug %}">
                                 Register Now
-                            </a>
+                            </span>
                             {% if not user.is_authenticated %}
                             <p class="text-center text-sm text-primary-500 mt-2">
                                 An account will be created for you
@@ -260,4 +272,95 @@
         </div>
     </div>
 </section>
+
+<!-- Terms and Conditions Modal -->
+<div id="terms-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b border-primary-200">
+            <h2 class="text-xl font-serif font-semibold text-primary-900">Terms and Conditions</h2>
+            <button id="close-terms-modal" class="text-primary-500 hover:text-primary-700">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="p-6 overflow-y-auto prose prose-sm max-w-none text-primary-700">
+            {% if terms %}
+                {{ terms.content|safe }}
+            {% else %}
+                <p>Terms and conditions are not currently available. Please contact us for more information.</p>
+            {% endif %}
+        </div>
+        <div class="p-6 border-t border-primary-200">
+            <button id="accept-terms-btn" class="w-full py-3 bg-accent-500 hover:bg-accent-600 text-white text-center font-semibold rounded-lg transition-colors">
+                I Understand
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('terms-checkbox');
+    const registerBtn = document.getElementById('register-btn');
+    const termsLink = document.getElementById('terms-link');
+    const termsModal = document.getElementById('terms-modal');
+    const closeModalBtn = document.getElementById('close-terms-modal');
+    const acceptTermsBtn = document.getElementById('accept-terms-btn');
+
+    if (!checkbox || !registerBtn) return;
+
+    // Handle checkbox change
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            registerBtn.classList.remove('bg-primary-300', 'text-primary-500', 'cursor-not-allowed');
+            registerBtn.classList.add('bg-accent-500', 'hover:bg-accent-600', 'text-white', 'cursor-pointer');
+            registerBtn.onclick = function() {
+                window.location.href = registerBtn.dataset.href;
+            };
+        } else {
+            registerBtn.classList.add('bg-primary-300', 'text-primary-500', 'cursor-not-allowed');
+            registerBtn.classList.remove('bg-accent-500', 'hover:bg-accent-600', 'text-white', 'cursor-pointer');
+            registerBtn.onclick = null;
+        }
+    });
+
+    // Open modal when clicking terms link
+    if (termsLink) {
+        termsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            termsModal.classList.remove('hidden');
+            termsModal.classList.add('flex');
+        });
+    }
+
+    // Close modal functions
+    function closeModal() {
+        termsModal.classList.add('hidden');
+        termsModal.classList.remove('flex');
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+    }
+
+    if (acceptTermsBtn) {
+        acceptTermsBtn.addEventListener('click', closeModal);
+    }
+
+    // Close modal when clicking outside
+    termsModal.addEventListener('click', function(e) {
+        if (e.target === termsModal) {
+            closeModal();
+        }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !termsModal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+});
+</script>
 {% endblock %}
