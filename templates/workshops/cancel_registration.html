@@ -24,6 +24,7 @@
             <p class="{% if refund_percent == 100 %}text-green-700{% else %}text-red-700{% endif %}">
                 {% if refund_percent == 100 %}
                     You will receive a full refund of <strong>£{{ refund_amount|floatformat:2 }}</strong>.
+                    <span class="block text-sm mt-1">Please allow up to 5 days for the refund to appear in your bank account.</span>
                 {% else %}
                     No refund will be issued as the workshop is in less than 14 days.
                 {% endif %}
