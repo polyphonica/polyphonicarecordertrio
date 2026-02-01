@@ -424,12 +424,12 @@ def cancel_registration(request, registration_id):
     days_until_workshop = (workshop.date - timezone.now().date()).days
 
     # Calculate refund based on cancellation policy
-    if days_until_workshop >= 7:
+    if days_until_workshop >= 14:
         refund_percent = 100
         refund_message = "Full refund"
     else:
         refund_percent = 0
-        refund_message = "No refund available (cancellation less than 7 days before workshop)"
+        refund_message = "No refund available (cancellation less than 14 days before workshop)"
 
     if request.method == 'POST':
         confirm = request.POST.get('confirm') == 'yes'
@@ -474,7 +474,7 @@ def cancel_registration(request, registration_id):
                 messages.success(
                     request,
                     f'Your registration for {workshop.title} has been cancelled. '
-                    f'No refund is available for cancellations less than 7 days before the workshop.'
+                    f'No refund is available for cancellations less than 14 days before the workshop.'
                 )
 
             return redirect('accounts:profile')
@@ -506,7 +506,7 @@ def send_cancellation_email(registration, refund_percent, refund_amount):
     if refund_percent == 100:
         refund_text = f"A full refund of £{refund_amount:.2f} will be processed to your original payment method within 5-10 business days."
     else:
-        refund_text = "As this cancellation was made less than 7 days before the workshop, no refund is available per our cancellation policy."
+        refund_text = "As this cancellation was made less than 14 days before the workshop, no refund is available per our cancellation policy."
 
     plain_message = f"""
 Hello {user.first_name},
