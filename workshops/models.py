@@ -157,7 +157,7 @@ class WorkshopRegistration(models.Model):
     # Registration details
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     phone = models.CharField(max_length=30, blank=True)
-    special_requirements = models.TextField(blank=True, help_text="Dietary, accessibility, etc.")
+    special_requirements = models.TextField(blank=True, help_text="Accessibility or other requirements")
 
     # In-person workshop fields
     emergency_contact = models.CharField(

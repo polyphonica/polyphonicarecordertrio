@@ -29,7 +29,7 @@ class WorkshopRegistrationForm(forms.Form):
     special_requirements = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 3}),
         required=False,
-        help_text="Dietary, accessibility, or other requirements"
+        help_text="Accessibility or other requirements"
     )
 
     def __init__(self, *args, user=None, workshop=None, **kwargs):
