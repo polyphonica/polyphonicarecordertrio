@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from django.db.models import Count
+from django.db.models import Count, F
 
 
 class Command(BaseCommand):
@@ -34,7 +34,11 @@ class Command(BaseCommand):
 
         for dup in duplicates:
             email = dup['email']
-            users = User.objects.filter(email=email).order_by('-last_login', '-date_joined')
+            # Sort by last_login desc (nulls last), then date_joined desc
+            users = User.objects.filter(email=email).order_by(
+                F('last_login').desc(nulls_last=True),
+                '-date_joined'
+            )
 
             self.stdout.write(f"Email: {email}")
             self.stdout.write("-" * 50)
