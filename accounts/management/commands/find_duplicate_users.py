@@ -73,24 +73,30 @@ class Command(BaseCommand):
 
         for dup_user in duplicates_to_delete:
             # Transfer workshop registrations
-            from workshops.models import WorkshopRegistration
-            registrations = WorkshopRegistration.objects.filter(user=dup_user)
-            transferred = registrations.update(user=primary_user)
-            if transferred:
-                self.stdout.write(
-                    f"  Transferred {transferred} workshop registration(s) "
-                    f"from {dup_user.username} to {primary_user.username}"
-                )
+            try:
+                from workshops.models import WorkshopRegistration
+                registrations = WorkshopRegistration.objects.filter(user=dup_user)
+                transferred = registrations.update(user=primary_user)
+                if transferred:
+                    self.stdout.write(
+                        f"  Transferred {transferred} workshop registration(s) "
+                        f"from {dup_user.username} to {primary_user.username}"
+                    )
+            except ImportError:
+                pass
 
-            # Transfer concert purchases
-            from concerts.models import ConcertPurchase
-            purchases = ConcertPurchase.objects.filter(user=dup_user)
-            transferred = purchases.update(user=primary_user)
-            if transferred:
-                self.stdout.write(
-                    f"  Transferred {transferred} concert purchase(s) "
-                    f"from {dup_user.username} to {primary_user.username}"
-                )
+            # Transfer concert ticket orders
+            try:
+                from concerts.models import ConcertTicketOrder
+                orders = ConcertTicketOrder.objects.filter(user=dup_user)
+                transferred = orders.update(user=primary_user)
+                if transferred:
+                    self.stdout.write(
+                        f"  Transferred {transferred} concert ticket order(s) "
+                        f"from {dup_user.username} to {primary_user.username}"
+                    )
+            except ImportError:
+                pass
 
             # Delete the duplicate user
             username = dup_user.username
