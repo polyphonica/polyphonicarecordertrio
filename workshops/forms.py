@@ -62,13 +62,6 @@ class WorkshopRegistrationForm(forms.Form):
         if self.user and self.user.is_authenticated:
             return self.user.email
 
-        # Check if email already has an account
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError(
-                "An account with this email already exists. "
-                "Please log in first, or use a different email."
-            )
-
         return email
 
     def get_or_create_user(self):
@@ -76,6 +69,7 @@ class WorkshopRegistrationForm(forms.Form):
         Returns the user for this registration.
         Creates a new account if the user isn't logged in.
         Returns (user, created, password) tuple.
+        Uses get_or_create to prevent race conditions with duplicate emails.
         """
         if self.user and self.user.is_authenticated:
             # Update name if changed
@@ -86,7 +80,6 @@ class WorkshopRegistrationForm(forms.Form):
                 self.user.save()
             return self.user, False, None
 
-        # Create new user
         email = self.cleaned_data['email']
         first_name = self.cleaned_data['first_name']
         last_name = self.cleaned_data['last_name']
@@ -99,15 +92,27 @@ class WorkshopRegistrationForm(forms.Form):
             username = f"{base_username}{counter}"
             counter += 1
 
-        # Generate random password
-        password = get_random_string(12)
-
-        user = User.objects.create_user(
-            username=username,
+        # Use get_or_create to prevent race conditions
+        user, created = User.objects.get_or_create(
             email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
+            defaults={
+                'username': username,
+                'first_name': first_name,
+                'last_name': last_name,
+            }
         )
 
-        return user, True, password
+        password = None
+        if created:
+            # Set a random password for newly created users
+            password = get_random_string(12)
+            user.set_password(password)
+            user.save()
+        else:
+            # Update name if user already exists
+            if user.first_name != first_name or user.last_name != last_name:
+                user.first_name = first_name
+                user.last_name = last_name
+                user.save()
+
+        return user, created, password
