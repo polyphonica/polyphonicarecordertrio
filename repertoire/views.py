@@ -20,6 +20,22 @@ from concerts.models import Concert
 
 
 # =============================================================================
+# Public Views
+# =============================================================================
+
+def composers_for_polyphonica(request):
+    """Public page listing composers who have written works for Polyphonica."""
+    composers = (
+        Composer.objects
+        .filter(pieces__written_for_polyphonica=True)
+        .prefetch_related('pieces')
+        .distinct()
+        .order_by('name')
+    )
+    return render(request, 'repertoire/composers_for_polyphonica.html', {'composers': composers})
+
+
+# =============================================================================
 # Forms
 # =============================================================================
 
@@ -45,7 +61,7 @@ class ComposerForm(StyledFormMixin, forms.ModelForm):
 class PieceForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Piece
-        fields = ['title', 'composer', 'duration', 'catalogue_number', 'instrumentation', 'notes']
+        fields = ['title', 'composer', 'duration', 'catalogue_number', 'instrumentation', 'written_for_polyphonica', 'notes']
         widgets = {
             'duration': forms.NumberInput(attrs={'placeholder': 'Minutes'}),
             'catalogue_number': forms.TextInput(attrs={'placeholder': 'e.g., BWV 1079'}),

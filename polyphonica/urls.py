@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.views.decorators.cache import cache_page
 
 from .sitemaps import sitemaps
+from repertoire.views import composers_for_polyphonica
 
 
 def robots_txt(request):
@@ -37,6 +38,7 @@ urlpatterns = [
     path('workshops/', include('workshops.urls')),
     path('media/', include('media_content.urls')),
     path('accounts/', include('accounts.urls')),
+    path('composers/', composers_for_polyphonica, name='composers_for_polyphonica'),
     path('manage/repertoire/', include('repertoire.urls')),
     path('manage/finance/', include('finance.urls')),
 ]

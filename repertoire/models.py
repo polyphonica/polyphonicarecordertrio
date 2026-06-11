@@ -111,6 +111,10 @@ class Piece(models.Model):
         blank=True,
         help_text="e.g., Alto, Tenor, Bass recorders"
     )
+    written_for_polyphonica = models.BooleanField(
+        default=False,
+        help_text="Commissioned or written specifically for Polyphonica"
+    )
     notes = models.TextField(
         blank=True,
         help_text="Programme notes about this piece"
